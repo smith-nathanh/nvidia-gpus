@@ -1,0 +1,12 @@
+{
+  "name": "nvidia-systems-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local, source-backed explorer of NVIDIA GPU system architecture.",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && node --check dist/app.js && node --check dist/data.js && node scripts/check-data.mjs"
+  },
+  "type": "module",
+  "engines": { "node": ">=18" }
+}

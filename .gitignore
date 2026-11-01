@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.cache/
+coverage/
+
+# dist/ contains the hand-authored application source. Keep it tracked.
