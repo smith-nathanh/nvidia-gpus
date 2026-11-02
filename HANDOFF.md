@@ -1,139 +1,141 @@
 # Agent handoff: NVIDIA Systems Explorer
 
-Prepared November 1, 2026. Read [the project goals](docs/PROJECT_GOALS.md) first for confirmed user intent and the agreed architecture roadmap.
+Updated November 2, 2026. Read [the project goals](docs/PROJECT_GOALS.md) first for user decisions and scope. This file records implementation choices and current status.
 
-## Immediate assignment
+## GB300 learning redesign prototype · November 2
 
-Refine the existing **GB300 NVL72 pilot** with the user. The user wants one architecture done well before building the whole lineup. Preserve the ability to understand an individual GPU, its CPU–GPU grouping, a node, the NVL72 rack/domain, and communication between racks.
+The user asked for one redesigned system on a branch, explaining that the old layout felt like a collection of facts without producing understanding. The current branch is `codex/gb300-learning-redesign`. Existing uncommitted expansion/review work was preserved; no baseline commit or remote was created.
 
-The user's latest request was to put the project under Git and record a handoff for another agent. The repo is local; no remote or hosted deployment was requested.
+GB300 now defaults to a four-part visual lesson at [the learning route](http://127.0.0.1:4173/#gb300/learn?step=0). The opening idea distinguishes **18 server/OS boundaries from one 72-GPU NVLink domain**. The other systems retain their existing explorer. Complete old explorer bookmarks continue to open their original view, and the GB300 sidebar switches between lesson and detailed explorer.
 
-## Start here
+The design assessment: the original interface gave counts, scale navigation, component inspection, trace controls, and specification notes similar visual weight. It expected the reader to assemble the hierarchy themselves. This prototype gives each screen one explanatory question, a primary visual, a takeaway, and an explicit next step:
+
+1. Rack overview: a simplified node/fabric relationship beside NVIDIA’s annotated physical rack.
+2. Inside a server: three guided highlights over NVIDIA’s actual tray wiring, plus an optional GPU silicon figure. The lesson explicitly explains that the tray I/O drawing omits rack-wide GPU peer NVLink.
+3. Data paths: select local HBM, paired CPU memory, another node in the rack, or another rack. The route, explanation, bandwidth direction, and scope change together.
+4. Training placement: move an illustrative two-node/eight-rank allocation within one rack or across two racks. GPU count stays fixed while the inter-node path changes. This is an educational example, not a Slurm simulation, launch recipe, or performance prediction.
+
+New files: `dist/learning.js` (lesson content/diagrams), `dist/learning.css` (scoped presentation), `dist/assets/nvidia/` (three unmodified, attributed NVIDIA originals), and `scripts/check-learning.mjs`. `dist/navigation.js` stores lesson, diagram highlight, data destination, and placement in learning URLs. `dist/app.js` handles mode switching and accessible interactions. The static server now serves PNG/WebP with image MIME types. No dependencies or build step were added.
+
+NVIDIA sources were rechecked November 2. Asset provenance is in `dist/assets/nvidia/README.md`. The scheduling reference discusses GB200 and explicitly gives four GPUs per node for both GB200 and GB300; only the shared placement principle is used. Existing memory/SKU caveats remain in the model notes; none of the other hardware models were revised.
+
+Verification: `npm run check` passes, including existing ten-model/forty-map checks and new lesson route/rank/asset invariants. Browser checks covered all four lessons at 390 px, the 586 px app panel, and desktop at 1440 px; no whole-page horizontal overflow was found. The wide NVIDIA tray diagram deliberately scrolls within its own frame on narrow screens. All four destination choices, three diagram highlights, eight-rank placements, reload/Back/Forward restoration, image expansion/Escape, and all ten system selections were exercised. No console warnings/errors were observed. These checks validate the UI and model consistency, not achieved hardware performance. The user approved this prototype and requested the same quality of redesign for all nine remaining architectures. The approved state is being checkpointed before expansion. Screenshot: `artifacts/gb300-learning-overview.jpg`. The local server was restarted on port 4173 to load the image MIME types.
+
+## Latest authorization and status
+
+The user asked for an architecture/code/UI review of the GB300 pilot, authorized the fixes and family expansion, then requested subagent reviews of all architectures. Three reviewers covered all ten references and rechecked targeted corrections. See [the architecture review](docs/ARCHITECTURE_REVIEW.md) for findings, source evidence and resolution status. The user has not separately approved every variant choice or visual detail.
+
+The target remains a local app. The user has now requested a Git push; no remote is configured, and the destination is pending. No hosted deployment, accounts, telemetry or automation was requested.
+
+## Run and check
 
 ```sh
 cd /Users/nate/proj/nvidia-gpus
-npm run check
 npm start
+npm run check
 ```
 
-- Node.js 18+; no dependency installation or build required.
-- Open [the local app](http://127.0.0.1:4173/). The existing browser was last on `/#rack`.
-- A local server was launched during the original work. Its lifetime is session-dependent. If port 4173 is already occupied, check whether the app is already running before starting a second server; alternatively use `PORT=4174 npm start`.
-- The server binds only to `127.0.0.1`. Environments that restrict listening on a local port may require their normal execution approval.
-- Reload after source edits; there is no hot reload.
+Open [the local app](http://127.0.0.1:4173/). Node 18+; no dependencies, installation, build or hot reload. **`dist/` is hand-authored, tracked source.** Reload after edits.
 
-## Current product
+An existing server may already occupy port 4173. Verify the app there rather than stopping an unrelated process or starting a duplicate. `PORT=4174 npm start` is an alternative. The server binds only to `127.0.0.1`; local sandbox policy may require the normal execution approval.
 
-The app has four scale views:
+## Current coverage
 
-| View | What it shows | Main interaction |
+| Selector | Reference configuration | Local GPU domain / memory model |
 | --- | --- | --- |
-| Rack | 18 compute nodes, nine NVLink switch trays, and a logical 72-GPU NVLink domain | Click a tray to open that numbered node; inspect switches and rack infrastructure |
-| Node | Two GB300 superchips, each with one Grace CPU and two Blackwell Ultra GPUs; CPU memory, C2C, NICs, DPU, storage | Inspect a superchip header, CPU, interface, or peripheral; click a GPU to enter the package view |
-| GPU | Two compute dies, eight HBM3e stacks, NV-HBI, and interfaces toward Grace and peer GPUs | Select memory, dies, or an interface for an explanation |
-| Between racks | Two distinct NVL72 domains connected via compute NICs and an external network | Inspect the scale-out network and understand why adding a rack does not automatically extend the NVLink domain |
+| GB300 NVL72 | NVIDIA Enterprise reference node; 18 trays, 4 GPUs and 2 Grace CPUs per tray | 72-GPU NVLink 5; 288 GB HBM3e architecture maximum per GPU |
+| DGX H100 | Eight H100 SXM GPUs, two Xeon 8480C CPUs | 8-GPU NVLink 4; 80 GB HBM3 per GPU |
+| DGX H200 | Eight H200 SXM GPUs, two Xeon 8480C CPUs | 8-GPU NVLink 4; 141 GB HBM3e per GPU |
+| GH200 | Single HBM3e superchip, one Grace CPU and one Hopper GPU | 144 GB HBM3e + up to 480 GB CPU LPDDR; illustrative server I/O |
+| DGX B200 | Eight B200 GPUs, two Xeon 8570 CPUs | 8-GPU NVLink 5; 180 GB per GPU from DGX’s 1,440 GB total |
+| GB200 NVL72 | DGX GB200 tray peripherals and GB200 product memory reporting | 72-GPU NVLink 5; 186 GB per GPU derived from 372 GB per pair |
+| DGX B300 | NVIDIA DGX datasheet memory totals, two Xeon 6776P CPUs | 8-GPU NVLink 5; 2.1 TB / 62 TB/s system HBM totals; individual values unspecified |
+| Vera Rubin NVL72 | Architecture-level tray composition with current product-table rates | 72-GPU NVLink 6; 288 GB HBM4, 19.2 TB/s HBM and 3 TB/s bidirectional NVLink per GPU |
+| DGX Spark | 128 GB NVIDIA GB10 reference | One GPU + one 20-core Arm CPU share physical LPDDR5X; no HBM |
+| DGX Station | GB300 Desktop Superchip, primary AI GPU only | One Grace CPU + one GPU; 252 GB HBM3e + 496 GB LPDDR5X |
 
-Other working features:
+These are selected configurations, not all SKUs. GH200 NVL2/DGX GH200, NVL4, PCIe Hopper variants, 64 GB Spark, optional Station RTX PRO, and other OEM layouts are not implemented.
 
-- Component inspector with explanations, facts, learning notes, and per-component source links.
-- Breadcrumbs and scale navigation, with hash routes `#rack`, `#node`, `#gpu`, and `#cluster`.
-- Four fixed example paths: peer GPUs in one rack, GPUs across racks, CPU to paired GPUs, and local HBM to GPU.
-- Direction toggle for per-direction versus send-plus-receive figures; HBM's published memory bandwidth is deliberately not doubled.
-- Link-label toggle, 100–200% diagram zoom, and reset.
-- Five-step guided tour and dialogs for research sources, planned coverage, and specification conventions.
-- Keyboard-accessible diagram components and arrow-key navigation between path tabs; reduced-motion styling.
-- Small-screen layouts with diagram scrolling and a return link from the inspector to the diagram.
+## The five review fixes
 
-The current appearance is a design proposal, not a completed user review. `artifacts/gb300-pilot.png` is the captured desktop preview; it is illustrative documentation, not an automated visual-regression baseline.
+1. **CPU-to-CPU connection:** dual-host nodes now show a separate inspectable host interconnect. The GB300 CLinks explanation cites [Enterprise Figure 3](https://docs.nvidia.com/enterprise-reference-architectures/nvl72-ai-factory/latest/_images/nvl72-ai-factory-03.png), separately from CPU–GPU C2C and GPU peer NVLink.
+2. **Readable maps and targets:** responsive HTML/CSS maps replace the SVGs that had shrunk subtitles to about 6 pixels and rack targets to about 7 pixels. Map subtitles now use 14 px; tray subtitles use 13 px. Interactive map controls have at least 44 px height. Container queries reflow groups and GPU grids; zoom remains available.
+3. **Focus preservation:** scale navigation and tour controls have stable IDs; map controls have stable focus keys. Keyboard Enter retains focus on the replacement navigation/tour control. Drill-down deliberately focuses the new view heading. Narrow-screen pointer inspection moves to the inspector; a return button restores diagram focus.
+4. **GPU identity:** state, breadcrumbs, package heading and inspector retain node, superchip and local GPU index. GPU indices are local to a node (0–3 for NVL72 trays; 0–7 for DGX servers).
+5. **History:** explicit navigation pushes complete hash routes. Back/Forward restores system, scale, node, GPU, selected component and path. Initial route normalization uses replacement. Legacy `#rack`, `#node`, `#gpu` and `#cluster` links still open the GB300 pilot.
 
-## Implementation map
+## User experience
+
+- A visible “Read more at NVIDIA” section below the data paths follows the selected system, with two or three official product/hardware/architecture entry points, evidence descriptions, and buttons for the complete sources and configuration notes. Links reuse the existing evidence registry; `readingSources` in `dist/models.js` selects the entry points. Browser checks confirmed updates across all ten selectors and the full-source dialog; `npm run check` passes.
+- A native selector groups ten systems by architecture family. Architecture Guide also lists and opens each reference.
+- Four views: system/rack context, inside a node/system, GPU and memory, and between systems/racks. Server and desktop references do not inherit the pilot’s 18-node rack topology.
+- Model-specific component inspectors, source lists, specification notes and five-step tours.
+- Three or four fixed data-path examples. Single-primary-GPU systems omit the local peer-GPU example.
+- Per-direction and send-plus-receive conventions; published HBM/shared-memory bandwidth is not doubled.
+- Rack maps expose all numbered nodes with readable buttons. Node maps distinguish host access, GPU peer fabric, and a parallel NIC/I/O path.
+- Maps show logical relationships, not physical floorplans, exact PCIe lanes, switch-port wiring or network bills of materials.
+- Desktop inspectors stay visible while scrolling a long map. Narrow layouts place details below the map.
+- No arbitrary endpoint routing or measured-performance calculator. No side-by-side comparison tool; the guide is coverage navigation.
+
+## Code map
 
 | File | Responsibility |
 | --- | --- |
-| `dist/index.html` | Page shell, navigation containers, toolbar, trace controls, dialog |
-| `dist/data.js` | `sources`, `system`, `views`, `components`, and `traces` exports |
-| `dist/app.js` | Inline SVG diagram generation, rendering, component selection, tour, dialogs, zoom, hash handling, and events |
-| `dist/style.css` | Visual design, SVG classes, responsive layouts, and reduced motion |
-| `server.mjs` | Dependency-free static HTTP server with path containment and content types |
-| `scripts/check-data.mjs` | Architecture counts, bandwidth conversions, and source/navigation-reference invariants |
-| `package.json` | `start` and `check` commands; ES modules |
+| `dist/index.html` | Shell, selector, navigation, workbench, inspector, trace controls, dialog |
+| `dist/models.js` | Ten configuration specs, extended source registry, unit formatting, and model-specific components/views/traces |
+| `dist/data.js` | Original pilot’s curated explanations, sources and invariants; reused by the GB300 adapter |
+| `dist/diagrams.js` | Responsive logical maps for all configurations and four scales; native buttons |
+| `dist/navigation.js` | Complete hash-route serialization/parsing and legacy route compatibility |
+| `dist/app.js` | State normalization, rendering, navigation/history, focus, tours, dialogs, zoom and events |
+| `dist/style.css` | Readable light/green schematic design, semantic component colors, container queries, responsive shell |
+| `scripts/check-data.mjs` | Original pilot architecture/unit/source invariants |
+| `scripts/check-models.mjs` | Ten reference fixtures, all forty map outputs, component/source/action targets, CPU-link presence, GPU inventory, route identity and memory conventions |
+| `server.mjs` | Dependency-free local static server with path containment |
 
-**`dist/` is the editable source.** There is no separate `src/` directory or generation step. Do not delete it as disposable build output.
+Sources are embedded and the app does not fetch external content on startup. Internet is needed only to follow source links. All configuration facts must retain primary-source evidence.
 
-The app is vanilla HTML/CSS/JavaScript and SVG. There is no framework, backend data store, external font/script dependency, or live data API. Research facts are embedded. External source links require internet access; the app itself does not fetch them on startup.
+## Hardware reporting constraints
 
-## Research model and accuracy constraints
+- One GPU may contain two compute dies. Do not multiply CUDA-visible GPU counts by die count.
+- H100/H200 and B200/B300 DGX servers use x86 hosts and PCIe; GB200/GB300 NVL72 use Grace-based CPU–GPU superchips.
+- Each GB200/GB300 rack has 18 compute nodes, 72 GPUs, 36 CPUs, and 9 switch trays × 2 ASICs. Do not inherit the switch count or per-port layout into Rubin; exact Rubin switch counts and die-link rate are deliberately omitted.
+- Per-GPU NVLink figures are shared interface budgets. Aggregating them across a domain is not a pairwise speed or a uniformly accessible memory pool.
+- CPU–GPU C2C is presented as a published interface/group budget. Exact per-branch allocation is still outside the teaching model; do not turn the schematic into a port-level performance model without further evidence.
+- PCIe host figures describe the selected ×16 host-interface ceiling, not end-to-end RAM-to-GPU throughput or a complete switch-lane allocation.
+- Compute NIC line rates are converted from bits to bytes before overhead. Station’s 800 Gb/s is an aggregate over two 400 Gb/s ports. GH200 server networking has no invented nominal rate.
+- GB300: 288 GB architecture maximum, 279 GB in other product publications, about 20 TB rounded rack HBM. Do not invent an explanation for the differences.
+- B200: 180 GB follows the DGX reported 1,440 GB total, rather than substituting 192 GB architecture memory.
+- GB200: 186 GB is derived from the product table’s reported 372 GB per pair. Peripherals follow the DGX GB200 reference (ConnectX-7, two BlueField-3 devices per tray).
+- B300: the selected DGX datasheet publishes 2.1 TB / 62 TB/s system HBM totals, without separate individual values. The hardware guide's 288 GB per GPU and the HGX datasheet's 270 GB / 7.7 TB/s row have different scopes. Do not assign the HGX figures or a generic Ultra 8 TB/s rate to the selected DGX configuration. The source conflict remains explicitly unresolved.
+- Rubin: current product table gives 19.2 TB/s HBM and 3 TB/s NVLink per GPU. The January architecture article gives earlier 22 TB/s and 3.6 TB/s values. The map uses current product rates and records the difference. Its ConnectX-9 1.6 Tb/s endpoint figure has a different scope from the product table’s networking aggregate.
+- Spark: shared LPDDR5X capacity and bandwidth are a single system budget. CPU/GPU tiles communicate coherently over C2C; its numerical rate is unspecified. Two external 200 Gb/s ports share SoC-facing I/O. The selected 200 Gb/s example is not labeled a full-adapter aggregate, and no 400 Gb/s host throughput is inferred.
+- Station: the Desktop Superchip is 1 CPU + 1 primary GPU, whereas the NVL72 superchip is 1 CPU + 2 GPUs. Optional RTX PRO is excluded explicitly.
+- Source date: November 1, 2026. Availability and specs should be rechecked when changing the model. In particular, Rubin is marked available based on the checked product page, not inferred from older launch schedules.
 
-The pilot follows NVIDIA's **Enterprise reference node** for peripherals, rather than claiming to reproduce every DGX/OEM layout. It deliberately calls out configuration differences.
+## Verification and remaining review
 
-Current teaching model, as recorded in the implementation:
+`npm run check` passes. It validates reference fixtures, syntax, all forty generated maps and route round-trips; it does not establish real hardware performance or replace browser QA.
 
-- One GB300 superchip: one Grace CPU plus two Blackwell Ultra GPUs.
-- One node/compute tray: two such superchips, four GPUs, and two CPUs.
-- One illustrated rack/domain: 18 nodes, 72 GPUs, and 36 CPUs.
-- Nine switch trays contain two NVSwitch ASICs each. Every GPU connects through 18 NVLink links, one to each switch ASIC.
-- Each logical GPU contains two compute dies. Do not confuse dies, GPUs, superchips, and nodes.
-- Per-GPU NVLink: 1,800 GB/s bidirectional, or 900 GB/s each way, shared across peer transfers. The roughly 130 TB/s rack aggregate sums GPU send/receive interface budgets; it is not a dedicated link speed between any two GPUs.
-- CPU–GPU C2C uses the published 900 GB/s bidirectional interface figure. The diagram groups its branches schematically; revisit the exact shared/interface interpretation against primary documentation before adding a port-level model or performance calculator.
-- Compute networking: 800 Gb/s per GPU corresponds to 100 GB/s per direction before overhead. Do not confuse bits with bytes or present a line-rate ceiling as measured workload performance.
-- HBM: the diagram uses a 288 GB architecture maximum and up to 8 TB/s local bandwidth. Other product/configuration documents quote 279 GB, while NVIDIA rounds rack HBM to about 20 TB. The app explains that these are different reported values, not a guarantee of allocatable capacity. Avoid inventing a cause for the difference without evidence.
-- The chosen Enterprise node has one BlueField-3; the DGX hardware guide lists two per tray. The app explains this difference. Storage and power details also vary.
-- Coherent or aggregate memory does not imply one physically uniform pool with identical local and remote access costs.
-- The external compute fabric can use InfiniBand or Ethernet. The cluster diagram is an illustrative path, not an exact port map or network bill of materials.
+Browser checks in this refinement verified:
 
-Hardware specs and product availability change. Sources were checked during the original work on November 1, 2026; re-check the relevant primary sources when changing claims.
+- GB300 node 07 → GPU 3 with superchip 2 context; Back/Forward restored the visited node and GPU routes.
+- Keyboard Enter on scale navigation retained focus; advancing the tour retained focus on Next.
+- All ten systems could be selected. Node/GPU views showed the expected GPU counts, die counts and memory types, with no pilot rack/CPU assumptions leaking into servers or desktops.
+- Narrow-panel map subtitles stayed at 14 px rather than shrinking, and inspected map controls had at least 44 px height.
+- Memory bandwidth stayed unchanged in send-plus-receive mode; keyboard path navigation worked with three- and four-path models.
+- Model-specific Station notes, dialog Escape behavior, and zoom containment were checked.
+- All forty system/scale views were checked at 390 px width: no whole-page horizontal overflow, missing values, or map buttons below 44 px height. Representative views were also checked at 783, 1280 and 1440 px widths; temporary viewport overrides were reset.
+- Reloading a complete GB300 node 07 / superchip 2 / GPU 3 bookmark retained its identity. B300 and Rubin source-difference notes and the architecture-guide system switch were checked in the browser.
+- Checked console warnings/errors were empty.
 
-### Primary sources already embedded in the app
+Current screenshots: `artifacts/gb300-refined-desktop.jpg` and `artifacts/spark-mobile.jpg`. `gb300-pilot.png` is the older SVG design. Screenshots are illustrative, not automated regression baselines.
 
-The `sources` object is the main link registry. Key starting points:
+The subsequent subagent review corrected rack endpoint numbering and B300 source scopes, clarified personal-system port/tile relationships, and fixed shared tour-entry focus, inspector scrolling and misleading host-path highlighting. Review-era evidence and remaining suggestions are recorded in `docs/ARCHITECTURE_REVIEW.md`; `artifacts/b300-reviewed.jpg` shows the revised B300 memory presentation.
 
-- [NVIDIA Enterprise NVL72 components](https://docs.nvidia.com/enterprise-reference-architectures/nvl72-ai-factory/latest/components.html)
-- [NVIDIA Enterprise networking hardware](https://docs.nvidia.com/enterprise-reference-architectures/nvl72-ai-factory/latest/networking-hardware.html)
-- [NVIDIA Enterprise network topology](https://docs.nvidia.com/enterprise-reference-architectures/nvl72-ai-factory/latest/network-logical-architecture.html)
-- [NVIDIA Enterprise overview](https://docs.nvidia.com/enterprise-reference-architectures/nvl72-ai-factory/latest/overview.html)
-- [DGX GB rack hardware guide](https://docs.nvidia.com/dgx/dgxgb200-user-guide/hardware.html)
-- [Inside NVIDIA Blackwell Ultra](https://developer.nvidia.com/blog/inside-nvidia-blackwell-ultra-the-chip-powering-the-ai-factory-era)
-- [GB300 NVL72 product specifications](https://www.nvidia.com/en-us/data-center/gb300-nvl72/)
-- [Blackwell Ultra datasheet](https://resources.nvidia.com/en-us-blackwell-architecture/blackwell-ultra-datasheet)
-- [Azure ND GB300 v6 deployment example](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-gb300-v6-series)
+The user’s latest educational context is real-world distributed LLM training, with existing CPU-only Slurm experience. Proposed next lessons include a Slurm allocation → process/rank → GPU map, a training-step communication overlay, memory budgeting, parallelism placement, and troubleshooting/checkpoint recovery. These are suggestions for discussion, not implemented features or separately approved expansion. A two-node, eight-GPU-per-node server example is a suggested starting exercise; preserve NVL72’s different node and fabric boundaries if adapting it.
 
-The user also asked which hardware hyperscalers use. Earlier research found public B200/GB200 and B300/GB300 offerings and deployments. It did **not** establish a fleet-share majority for any model. That conversation informed the GB300 pilot selection; no cloud-provider comparison feature has been implemented.
+Further useful work: have the user assess the broader learning experience, refine explanation depth and long-map navigation based on their feedback, then consider additional exact SKU variants and a real comparison interface. Do not silently add hosted deployment, benchmark predictions or unsupported port-level detail.
 
-## Verification already performed
+## Git
 
-### Automated
-
-`npm run check` passed, including a fresh run during this handoff. It checks JavaScript syntax and data invariants, not browser rendering or real hardware performance.
-
-The app previously returned HTTP 200 from the local server.
-
-### Manual browser checks during pilot implementation
-
-- Opened a numbered tray (node 07), then individual GPU details.
-- Checked superchip-header selection; corrected an overlapping SVG hit target that had selected the CPU instead.
-- Checked cross-rack trace and send-plus-receive conversion to 200 GB/s; HBM remained at the published 8 TB/s.
-- Checked trace keyboard navigation, link-label toggle, source dialog, specification dialog, and Escape to close.
-- Walked the guided tour, checked zoom, and checked mobile inspector/return navigation.
-- Inspected desktop and small-screen layouts. Horizontal diagram scrolling is intentional; no whole-page overflow was observed in those checks.
-- The browser console reported no warnings/errors in the checked interactions.
-
-This was a manual QA pass, not a complete accessibility audit or a committed end-to-end test suite. The source count increased from eight to nine after adding the datasheet reference. The most recent screenshot is saved under `artifacts/`.
-
-## Suggested refinement priorities
-
-These are recommendations from the first agent, not additional user requirements:
-
-1. Review the live pilot with the user. Confirm whether the scale transitions, terminology, and diagram detail answer their questions before adding systems.
-2. Improve readability and interaction discoverability in the narrow in-app browser panel. Some diagram labels are small until zoomed; check contrast and keyboard/focus behavior more thoroughly.
-3. Make the relation between the selected GPU, its superchip, its node, and its rack even clearer. Currently the node number is retained, but clicking GPU 0/1/2/3 opens a generic GPU view without retaining that GPU's index.
-4. Consider a clearer visual emphasis on the selected example path. Current SVGs use animated wires and a component inspector; they do not implement arbitrary endpoint selection or precise measured routing.
-5. Revisit the C2C schematic and all capacity/source differences before introducing calculated performance claims.
-6. If expanding the model, consolidate repeated facts: some counts and diagram strings are hardcoded in `app.js` and HTML in addition to `data.js`. The current invariants do not catch every possible rendering/data mismatch.
-7. The CSS is intentionally a compact first pass with late overrides. A cleanup could make further design work easier while preserving current responsive behavior.
-8. After the pilot is accepted, design a reusable system/configuration model and comparisons before duplicating diagrams for the rest of the roadmap.
-
-Do not turn these suggestions into an unsolicited large rewrite. The next useful step is to refine the learning experience and resolve the user's feedback.
-
-## Git handoff
-
-The intended baseline is a local `main` branch containing the pilot, its preview, and this documentation. See `git log -1` and `git status` for the actual commit and working-tree state. No remote has been configured as part of this handoff; do not assume GitHub publication is authorized.
+This remains a local repository. Inspect `git status` and `git log` for the actual state. No commit, remote or publication is implied by the implementation work.

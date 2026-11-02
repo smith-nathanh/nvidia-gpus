@@ -1,249 +1,288 @@
-import { sources, system, views, components, traces } from './data.js';
+import { systems, sources, readingSources, getModel, bandwidth, gpuCount, cpuCount, isRack } from './models.js';
+import { diagram } from './diagrams.js';
+import { readRoute, writeRoute, viewKeys } from './navigation.js';
+import { lessonSteps, learningPage, figures, figureDialog } from './learning.js';
 
-const $ = (q) => document.querySelector(q);
-const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const initial = location.hash.slice(1);
-const state = { view: views[initial] ? initial : 'rack', selected: views[initial]?.selected || 'rack', labels: true, bandwidth: 'oneway', trace: 'peer', node: 1, tour: -1, zoom: 1 };
-const order = Object.keys(views);
-const tourSteps = [
-  { view: 'rack', component: 'rack', title: 'Start with the domain', text: 'NVL72 is the group of 72 GPUs that share NVLink. This reference fits that group into one rack.' },
-  { view: 'node', component: 'node', title: 'Open one compute node', text: 'Each of the 18 trays is an independent server. Count two CPUs and four GPUs inside it.' },
-  { view: 'node', component: 'superchip', title: 'Find the superchips', text: 'Each outlined group pairs one Grace CPU with two GPUs. That is a GB300 superchip; two groups make a node.' },
-  { view: 'gpu', component: 'hbm', title: 'Look at one GPU', text: 'Two dies function as one accelerator. HBM is its local memory; NVLink is the path to the other GPUs.' },
-  { view: 'cluster', component: 'network', title: 'Cross the rack boundary', text: 'A transfer to another rack uses ConnectX-8 and the compute network. Each rack keeps its own NVLink domain.' }
-];
-const text = (x, y, value, cls = '', anchor = 'start') => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${esc(value)}</text>`;
-function box(x, y, w, h, title, sub = '', kind = 'neutral', component = '', go = '', extra = '') {
-  return `<g ${component ? `class="component ${state.selected === component ? 'is-selected' : ''}" role="button" tabindex="0" aria-label="${esc(title + (sub ? ': ' + sub : ''))}" data-component="${component}" ${go ? `data-go="${go}"` : ''}` : ''} ${extra}><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" class="box ${kind}"/>${text(x + 16, y + (sub ? 28 : h / 2 + 5), title, 'box-title')}${sub ? text(x + 16, y + 49, sub, 'box-sub') : ''}${go ? text(x + w - 17, y + 27, '↗', 'box-arrow', 'end') : ''}</g>`;
-}
-function wire(d, kind = 'green', active = false, label = '', x = 0, y = 0) {
-  return `<path d="${d}" class="wire ${kind} ${active ? 'flow' : ''}"/>${label && state.labels ? `<g class="wire-label">${text(x, y, label, kind)}</g>` : ''}`;
-}
-const label = (x, y, value, kind = '') => state.labels ? text(x, y, value, `annotation ${kind}`) : '';
-function svg(body, desc) { return `<svg viewBox="0 0 1000 620" role="group" aria-labelledby="svg-title svg-desc"><title id="svg-title">${esc(views[state.view].title)}</title><desc id="svg-desc">${esc(desc)}</desc><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#d9dfd5"/></pattern></defs><rect width="1000" height="620" fill="url(#dots)"/>${body}</svg>`; }
+const $ = q => document.querySelector(q);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const defaults = { labels: true, bandwidth: 'oneway', tour: -1, zoom: 1 };
+const defaultTrace = (model, view) => ({ rack: model.traces.peer ? 'peer' : 'host', node: 'host', gpu: 'memory', cluster: 'remote' })[view];
 
-function rackDiagram() {
-  let b = `<rect x="38" y="34" width="272" height="545" rx="12" class="rack-shell"/>${text(58, 64, 'NVL72 / RACK 01', 'rack-label')}${text(58, 84, 'Schematic arrangement', 'muted-tiny')}`;
-  let n = 0;
-  for (let i = 0; i < 27; i++) {
-    const sw = i >= 9 && i < 18;
-    const y = 105 + i * 15;
-    if (!sw) n++;
-    b += `<g class="component rack-row ${!sw && n === state.node ? 'current-node' : ''}" role="button" tabindex="0" data-component="${sw ? 'fabric' : 'node'}" ${!sw ? `data-go="node" data-node="${n}"` : ''} aria-label="${sw ? `NVLink switch tray ${i - 8}: two switch ASICs` : `Open compute node ${n}: four GPUs and two CPUs`}"><rect x="58" y="${y}" width="230" height="12" rx="2" class="${sw ? 'switch-row' : 'compute-row'}"/>${text(65, y + 9, sw ? `SW ${String(i - 8).padStart(2, '0')}` : `NODE ${String(n).padStart(2, '0')}`, 'row-label')}${Array.from({ length: sw ? 2 : 4 }, (_, k) => `<rect x="${sw ? 197 + 40 * k : 173 + 27 * k}" y="${y + 3}" width="${sw ? 31 : 19}" height="6" rx="1" class="slot ${sw ? 'switch-slot' : ''}"/>`).join('')}</g>`;
-  }
-  b += box(58, 522, 230, 36, 'Power · cooling · management', '', 'neutral', 'infrastructure');
-  b += `${text(360, 61, 'THE LOGICAL CONNECTION', 'section-label')}${text(360, 82, 'All 72 GPUs join the same switched fabric.', 'annotation')}`;
-  b += `<rect x="355" y="110" width="605" height="430" rx="12" class="domain-outline"/>${text(375, 136, 'ONE 72-GPU NVLINK DOMAIN', 'domain-label')}`;
-  b += box(390, 156, 250, 82, 'Compute node 01', '4 GPUs · 2 Grace CPUs', 'neutral', 'node', 'node', 'data-node="1"');
-  b += box(680, 156, 245, 82, 'Compute node 18', '4 GPUs · 2 Grace CPUs', 'neutral', 'node', 'node', 'data-node="18"');
-  const active = state.trace === 'peer';
-  b += wire('M 515 238 V 286', 'green', active);
-  b += wire('M 800 238 V 286', 'green', active);
-  b += box(390, 286, 535, 105, 'NVLink 5 switch fabric', '9 switch trays × 2 NVSwitch ASICs = 18 switches', 'gpu', 'fabric');
-  b += Array.from({ length: 18 }, (_, i) => `<rect x="${406 + i * 28}" y="360" width="20" height="10" rx="2" class="switch-chip"/>`).join('');
-  b += wire('M 515 391 V 432', 'green', active);
-  b += wire('M 800 391 V 432', 'green', active);
-  b += box(390, 432, 250, 76, 'Nodes 02–09', '32 more GPUs', 'neutral', 'node', 'node', 'data-node="2"');
-  b += box(680, 432, 245, 76, 'Nodes 10–17', '32 more GPUs', 'neutral', 'node', 'node', 'data-node="10"');
-  b += label(360, 575, '18 NVLink links per GPU · one to each switch ASIC', 'green');
-  b += `<path d="M 310 112 H 335 V 195 H 380" class="callout"/>${text(359, 602, 'Click any tray to open its node architecture.', 'annotation')}`;
-  return svg(b, 'Rack with 18 clickable compute trays and nine NVLink switch trays. A logical diagram shows the nodes connected through 18 switch ASICs in one NVLink domain.');
+function normalized(route) {
+  const systemId = Object.hasOwn(systems, route.systemId) ? route.systemId : 'gb300';
+  const m = getModel(systemId), s = m.spec;
+  const view = viewKeys.includes(route.view) ? route.view : s.defaultView;
+  return {
+    systemId, view,
+    mode: systemId === 'gb300' && route.mode === 'learn' ? 'learn' : 'explore',
+    lesson: Number.isInteger(route.lesson) ? Math.max(0, Math.min(3, route.lesson)) : 0,
+    lens: ['groups', 'network', 'storage'].includes(route.lens) ? route.lens : 'groups',
+    storyPath: ['memory', 'host', 'peer', 'remote'].includes(route.storyPath) ? route.storyPath : 'peer',
+    placement: route.placement === 'split' ? 'split' : 'same',
+    node: Math.max(1, Math.min(s.nodes, Number.isInteger(route.node) ? route.node : 1)),
+    gpu: Math.max(0, Math.min(s.gpusPerNode - 1, Number.isInteger(route.gpu) ? route.gpu : 0)),
+    selected: Object.hasOwn(m.components, route.selected) ? route.selected : m.views[view].selected,
+    trace: Object.hasOwn(m.traces, route.trace) ? route.trace : defaultTrace(m, view)
+  };
 }
+let state = { ...defaults, ...normalized(readRoute(location.hash || '#gb300/learn')) };
+let model = getModel(state.systemId);
 
-function nodeDiagram() {
-  let b = `${text(35, 35, `COMPUTE NODE ${String(state.node).padStart(2, '0')} / 1 OF 18 TRAYS`, 'section-label')}${text(35, 57, 'Each outlined CPU + GPU group is one GB300 superchip.', 'annotation')}`;
-  const host = state.trace === 'host';
-  for (let p = 0; p < 2; p++) {
-    const x = 35 + p * 480;
-    b += `<rect x="${x}" y="80" width="450" height="307" rx="12" class="superchip-boundary ${state.selected === 'superchip' ? 'boundary-selected' : ''}"/><g class="component" role="button" tabindex="0" data-component="superchip" aria-label="GB300 superchip ${p + 1}: one Grace CPU and two GPUs"><rect x="${x + 8}" y="85" width="434" height="31" rx="4" class="superchip-hit"/>${text(x + 18, 107, `GB300 SUPERCHIP ${p + 1}`, 'superchip-label')}</g>`;
-    b += box(x + 22, 123, 406, 46, 'LPDDR5X · CPU system memory', '', 'cpu', 'cpu');
-    b += wire(`M ${x + 225} 169 V 186`, 'amber', host);
-    b += box(x + 100, 186, 250, 58, `Grace CPU ${p}`, '72 Arm cores', 'cpu', 'cpu');
-    b += `<g class="component" role="button" tabindex="0" data-component="c2c" aria-label="Inspect NVLink C2C CPU to GPU connections"><rect x="${x + 35}" y="249" width="380" height="47" rx="5" fill="transparent"/>${wire(`M ${x + 225} 244 V 268 H ${x + 125} V 300 M ${x + 225} 268 H ${x + 330} V 300`, 'amber', host)}${label(x + 145, 288, 'NVLink-C2C', 'amber')}</g>`;
-    for (let k = 0; k < 2; k++) {
-      const gx = x + 22 + k * 209;
-      b += box(gx, 300, 197, 65, `GPU ${p * 2 + k}`, 'Blackwell Ultra · HBM3e', 'gpu', 'gpu', 'gpu');
-      b += wire(`M ${gx + 98} 365 V 426`, 'green', !host);
-    }
-  }
-  b += box(35, 426, 930, 63, 'To the rack’s NVLink switch fabric', 'Every GPU has 18 links to the rack’s 18 switch ASICs', 'gpu', 'fabric');
-  b += label(620, 415, '900 GB/s per GPU in each direction', 'green');
-  b += box(35, 525, 295, 68, '4 × ConnectX-8', 'Compute network · 800 Gb/s per GPU', 'net', 'nic');
-  b += box(350, 525, 295, 68, '1 × BlueField-3', 'Storage + in-band management', 'net', 'dpu');
-  b += box(665, 525, 300, 68, 'Local NVMe storage', '1 boot drive + 4 cache drives', 'storage', 'storage');
-  b += `${text(35, 511, 'OTHER NODE COMPONENTS · I/O WIRING OMITTED', 'muted-tiny')}`;
-  return svg(b, 'Two GB300 superchips in one server node. Each superchip has one Grace CPU, LPDDR5X memory and two GPUs connected through NVLink C2C. All four GPUs connect to external rack NVLink switches. Network adapters and NVMe storage are listed separately; their I/O wiring is omitted.');
-}
-
-function gpuDiagram() {
-  let b = `${text(38, 35, 'ONE BLACKWELL ULTRA GPU', 'section-label')}${text(38, 57, 'Package-level view · one of the rack’s 72 accelerators', 'annotation')}`;
-  b += `<rect x="145" y="87" width="710" height="390" rx="18" class="package"/>${text(165, 113, 'GPU PACKAGE', 'domain-label')}`;
-  for (let i = 0; i < 8; i++) {
-    const x = 183 + (i % 4) * 169;
-    const y = i < 4 ? 139 : 385;
-    b += box(x, y, 128, 58, `HBM ${i}`, 'HBM3e stack', 'gpu', 'hbm');
-    b += wire(`M ${x + 64} ${i < 4 ? y + 58 : y} V ${i < 4 ? 225 : 357}`, 'green', state.trace === 'memory');
-  }
-  b += box(219, 225, 250, 132, 'Compute die 0', 'Compute engines + cache', 'die-box', 'die');
-  b += box(535, 225, 250, 132, 'Compute die 1', 'Compute engines + cache', 'die-box', 'die');
-  b += Array.from({ length: 8 }, (_, i) => `<rect x="${238 + (i % 4) * 51}" y="${301 + Math.floor(i / 4) * 18}" width="40" height="12" rx="2" class="compute-unit"/><rect x="${554 + (i % 4) * 51}" y="${301 + Math.floor(i / 4) * 18}" width="40" height="12" rx="2" class="compute-unit"/>`).join('');
-  b += wire('M 469 283 H 535 M 469 299 H 535', 'green', false);
-  b += `${text(502, 272, 'NV-HBI', 'muted-tiny', 'middle')}${label(467, 375, '10 TB/s die-to-die')}${label(210, 462, '8 stacks · up to 288 GB¹ · up to 8 TB/s local memory', 'green')}`;
-  b += wire('M 309 477 V 515', 'amber', state.trace === 'host');
-  b += wire('M 689 477 V 515', 'green', state.trace === 'peer');
-  b += box(145, 515, 330, 70, 'NVLink-C2C → Grace', 'Coherent CPU–GPU interface', 'cpu', 'c2c');
-  b += box(525, 515, 330, 70, 'NVLink 5 → peer GPUs', 'Through the rack’s NVSwitch fabric', 'gpu', 'fabric');
-  return svg(b, 'One GPU package containing two compute dies connected by NV HBI and eight HBM3e stacks. Separate external interfaces lead to the Grace CPU via NVLink C2C and other GPUs via the rack NVLink switches.');
-}
-
-function clusterDiagram() {
-  let b = `${text(35, 35, 'TWO RACKS / ILLUSTRATIVE COMPUTE NETWORK', 'section-label')}${text(35, 57, 'Each rack remains a separate 72-GPU NVLink domain.', 'annotation')}`;
-  for (let k = 0; k < 2; k++) {
-    const x = 35 + k * 535;
-    b += `<rect x="${x}" y="90" width="430" height="248" rx="12" class="domain-outline"/>${text(x + 20, 118, `RACK ${k ? 'B' : 'A'} · NVL72 DOMAIN`, 'domain-label')}`;
-    b += box(x + 20, 137, 390, 70, '18 nodes · 72 GPUs', '36 Grace CPUs + local memory', 'neutral', 'rack', 'rack');
-    b += wire(`M ${x + 110} 207 V 239 M ${x + 320} 207 V 239`, 'green', false);
-    b += box(x + 20, 239, 390, 71, 'NVLink 5 switch fabric', '900 GB/s per GPU · each direction', 'gpu', 'fabric');
-    b += wire(`M ${x + 215} 338 V 368`, 'blue', state.trace === 'remote');
-    b += box(x + 45, 368, 340, 67, 'ConnectX-8 SuperNICs', '800 Gb/s per GPU · 4 adapters / node', 'net', 'nic');
-  }
-  b += wire('M 250 435 V 481 H 500 V 515 M 785 435 V 481 H 500', 'blue', state.trace === 'remote');
-  b += box(190, 515, 620, 74, 'External GPU compute network', 'Quantum-X800 InfiniBand or Spectrum-X Ethernet', 'net', 'network');
-  b += label(300, 466, '100 GB/s per direction per GPU · before overhead', 'blue');
-  return svg(b, 'Two separate NVL72 rack domains connected through ConnectX-8 adapters and an external InfiniBand or Ethernet compute network. This is a conceptual path; network switch tiers and port wiring are not shown.');
-}
-
+function focusHeading() { $('#view-title').focus({ preventScroll: true }); }
 function render() {
   const focused = document.activeElement;
   const focusId = focused?.id;
-  const focusLabel = focused?.getAttribute('aria-label');
-  const wasComponent = focused?.hasAttribute('data-component');
-  $('#scale-nav').innerHTML = order.map((key, i) => `<button class="scale-item ${state.view === key ? 'active' : ''}" data-view="${key}" ${state.view === key ? 'aria-current="page"' : ''}><span class="scale-number">0${i + 1}</span><span><strong>${views[key].name}</strong><small>${views[key].subtitle}</small></span><span class="scale-arrow">↗</span></button>`).join('');
-  $('#stats').innerHTML = [['72', 'Blackwell Ultra GPUs'], ['36', 'Grace CPUs'], ['18', 'Compute nodes'], ['9', 'NVLink switch trays']].map(([v, l]) => `<div class="stat"><span class="stat-value">${v}</span><span class="stat-label">${l}</span></div>`).join('');
-  const crumbs = [{ label: 'GB300 NVL72', view: 'rack' }];
-  if (state.view === 'node' || state.view === 'gpu') crumbs.push({ label: `Node ${String(state.node).padStart(2, '0')}`, view: 'node' });
-  if (state.view === 'gpu') crumbs.push({ label: 'Individual GPU', view: 'gpu' });
-  if (state.view === 'cluster') crumbs.push({ label: 'Between racks', view: 'cluster' });
-  $('#breadcrumbs').innerHTML = crumbs.map((c, i) => `${i ? '<span class="crumb-separator">/</span>' : '<span class="crumb-icon">▦</span>'}<button data-view="${c.view}" ${i === crumbs.length - 1 ? 'aria-current="location"' : ''}>${c.label}</button>`).join('');
-  $('#view-kicker').textContent = views[state.view].kicker;
-  $('#view-title').textContent = views[state.view].title;
-  $('#diagram').innerHTML = ({ rack: rackDiagram, node: nodeDiagram, gpu: gpuDiagram, cluster: clusterDiagram })[state.view]();
-  updateZoom();
+  const focusKey = focused?.getAttribute('data-focus-key');
+  const hadActionFocus = focused?.matches('button, [data-component]');
+  const s = model.spec, rack = isRack(s), shared = s.layout === 'shared';
+  document.title = `${s.name} · NVIDIA Systems Explorer`;
+  $('#system-picker').value = s.id;
+  $('#system-name').textContent = s.name;
+  $('#system-family').textContent = s.family;
+  const learning = state.mode === 'learn';
+  document.body.classList.toggle('learning', learning);
+  $('#learning-page').hidden = !learning;
+  $('#experience-toggle').hidden = s.id !== 'gb300';
+  $('#experience-toggle').textContent = learning ? 'Open architecture explorer →' : 'Start the visual lesson →';
+  $('#nav-label').textContent = learning ? 'UNDERSTAND THIS SYSTEM' : 'EXPLORE THE ARCHITECTURE';
+  $('#scale-nav').setAttribute('aria-label', learning ? 'Architecture lesson' : 'Architecture scale');
+  $('.brand').href = learning ? '#gb300/learn?step=0' : '#rack';
+  if (learning) { $('.brand').dataset.lesson = '0'; delete $('.brand').dataset.view; }
+  else { $('.brand').dataset.view = 'rack'; delete $('.brand').dataset.lesson; }
+  if (learning) {
+    $('#scale-nav').innerHTML = lessonSteps.map(([title, sub], i) => `<button id="lesson-nav-${i}" class="scale-item ${state.lesson === i ? 'active' : ''}" data-lesson="${i}" ${state.lesson === i ? 'aria-current="step"' : ''}><span class="scale-number">0${i + 1}</span><span><strong>${title}</strong><small>${sub}</small></span></button>`).join('');
+    $('#learning-page').innerHTML = learningPage(state);
+    $('#tour').hidden = true;
+    if (focusId) document.getElementById(focusId)?.focus({preventScroll:true});
+    return;
+  }
+  $('#page-family').textContent = `${s.family.toUpperCase()} / ${rack ? 'RACK-SCALE' : s.layout === 'server' ? 'GPU SERVER' : 'CPU–GPU SYSTEM'}`;
+  $('#page-title').textContent = s.name;
+  $('#reference-summary').textContent = s.reference;
+  $('#model-status').textContent = s.availability || 'Published configuration · sources checked Nov 1, 2026';
+  $('#sidebar-summary').textContent = rack ? 'One rack. Multiple servers. One GPU fabric.' : shared ? 'One computer. CPU and GPU share one physical memory pool.' : 'Follow host memory, GPU memory, and the connections between them.';
+  $('#scale-nav').innerHTML = viewKeys.map((key, i) => `<button id="nav-${key}" class="scale-item ${state.view === key ? 'active' : ''}" data-view="${key}" ${state.view === key ? 'aria-current="page"' : ''}><span class="scale-number">0${i + 1}</span><span><strong>${esc(model.views[key].name)}</strong><small>${esc(model.views[key].subtitle)}</small></span><span class="scale-arrow" aria-hidden="true">↗</span></button>`).join('');
+  const capacity = s.gpuMemoryGB === null ? s.totalGpuMemory : `${s.gpuMemoryGB} GB`;
+  const capacityScope = s.gpuMemoryGB === null ? 'HBM / system · reported total¹' : 'HBM / GPU¹';
+  const stats = rack ? [[gpuCount(s), 'GPUs / NVLink domain'], [cpuCount(s), 'CPUs / rack'], [s.nodes, 'Compute nodes / rack'], [capacity, capacityScope]] : [[s.gpusPerNode, 'Primary GPUs / system'], [s.cpusPerNode, 'Host CPUs / system'], [capacity, shared ? 'Shared system memory' : capacityScope], [shared ? bandwidth(s.memoryGBps) : s.nvlinkBidirGBps ? s.gpusPerNode : '1', shared ? 'System memory bandwidth' : s.nvlinkBidirGBps ? 'GPUs / NVLink domain' : 'Primary GPU · no peer']];
+  $('#stats').setAttribute('aria-label', `Specifications for ${s.reference}`);
+  $('#stats').innerHTML = stats.map(([v, l]) => `<div class="stat"><span class="stat-value">${esc(v)}</span><span class="stat-label">${esc(l)}</span></div>`).join('');
+  const crumbs = [{ label: s.name, view: 'rack', key: 'system' }];
+  if (['node','gpu'].includes(state.view)) crumbs.push({ label: rack ? `Node ${String(state.node).padStart(2, '0')}` : 'Compute system', view: 'node', key: 'node' });
+  if (state.view === 'gpu' && s.superchipsPerNode) crumbs.push({ label: `Superchip ${Math.floor(state.gpu / s.gpusPerSuperchip) + 1}`, component: 'superchip', go: 'node', key: 'superchip' });
+  if (state.view === 'gpu') crumbs.push({ label: `GPU ${state.gpu}`, view: 'gpu', key: 'gpu' });
+  if (state.view === 'cluster') crumbs.push({ label: rack ? 'Between racks' : 'Between systems', view: 'cluster', key: 'cluster' });
+  $('#breadcrumbs').innerHTML = crumbs.map((c, i) => `${i ? '<span aria-hidden="true">/</span>' : ''}<button id="crumb-${c.key}" ${c.component ? `data-component="${c.component}" data-go="${c.go}"` : `data-view="${c.view}"`} ${i === crumbs.length - 1 ? 'aria-current="location"' : ''}>${esc(c.label)}</button>`).join('');
+  $('#view-kicker').textContent = model.views[state.view].kicker;
+  $('#view-title').textContent = model.views[state.view].title;
+  $('#diagram').innerHTML = diagram(model, state);
   $('#labels-button').setAttribute('aria-pressed', String(state.labels));
   $('#label-indicator').textContent = state.labels ? 'ON' : 'OFF';
-  renderInspector();
-  renderTrace();
-  renderTour();
-  if (focusId && document.getElementById(focusId)) document.getElementById(focusId).focus({ preventScroll: true });
-  else if (wasComponent && focusLabel) {
-    const match = [...document.querySelectorAll('[data-component]')].find(el => el.getAttribute('aria-label') === focusLabel);
-    if (match) match.focus({ preventScroll: true });
-    else { $('#view-title').tabIndex = -1; $('#view-title').focus({ preventScroll: true }); }
-  }
+  renderInspector(); renderTrace(); renderTour(); renderReading(); updateZoom();
+  const replacement = focusId && document.getElementById(focusId) || focusKey && [...document.querySelectorAll('[data-focus-key]')].find(el => el.dataset.focusKey === focusKey);
+  if (replacement) replacement.focus({ preventScroll: true });
+  else if (hadActionFocus) focusHeading();
+}
+
+function renderReading() {
+  const s = model.spec;
+  const section = $('#reading-links');
+  if (section.dataset.system === s.id) return;
+  $('#reading-title').textContent = `Read more at NVIDIA · ${s.name}`;
+  $('#reading-context').textContent = `Start with the product overview, then explore the hardware and architecture references below. Map reference: ${s.reference}. Publications may cover other variants; see configuration differences before comparing numbers. Links open in a new tab.`;
+  section.innerHTML = readingSources[s.id].map(key => {
+    const ref = sources[key];
+    return `<article class="reading-card"><a href="${esc(ref.url)}" target="_blank" rel="noopener noreferrer">${esc(ref.title)} <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a><p>${esc(ref.supports)}</p></article>`;
+  }).join('');
+  section.dataset.system = s.id;
 }
 
 function renderInspector() {
-  const c = components[state.selected] || components.rack;
-  const sourceLinks = c.sources.map(k => `<a href="${sources[k].url}" target="_blank" rel="noopener noreferrer">${esc(sources[k].title)} ↗</a>`).join('');
-  $('#inspector').innerHTML = `<div class="eyebrow inspector-label"><span class="status-dot"></span> COMPONENT INSPECTOR</div><div class="component-icon" aria-hidden="true">${({ gpu: '▦', hbm: '▤', cpu: '▧', fabric: '⇄', node: '▣', rack: '▥', network: '⌁', cluster: '⌘' })[state.selected] || '◇'}</div><div class="eyebrow type-label">${c.type}</div><h2>${c.title}</h2><p class="component-description">${c.text}</p><dl class="facts">${c.facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><div class="insight"><span class="eyebrow">WHY THIS MATTERS</span><p>${c.insight}</p></div>${c.action ? `<button class="primary-button" data-view="${c.action[0]}">${c.action[1]} <span>→</span></button>` : ''}${['gpu', 'hbm'].includes(state.selected) ? '<button class="memory-note text-button" data-dialog="notes">¹ About memory capacity</button>' : ''}<details class="component-sources"><summary>Sources for this component <span>${c.sources.length}</span></summary><div>${sourceLinks}</div></details><button class="text-button inspector-back" data-scroll="diagram">Back to diagram ↑</button>`;
+  const c = model.components[state.selected] || model.components[model.views[state.view].selected];
+  const inspector = $('#inspector');
+  const inspectionKey = `${state.systemId}/${state.node}/${state.gpu}/${state.selected}`;
+  const changed = inspector.dataset.inspectionKey !== inspectionKey;
+  const context = state.view === 'gpu' ? `${isRack(model.spec) ? `Node ${String(state.node).padStart(2, '0')}` : model.spec.name} · ${model.spec.superchipsPerNode ? `superchip ${Math.floor(state.gpu / model.spec.gpusPerSuperchip) + 1} · ` : ''}GPU ${state.gpu}` : isRack(model.spec) && state.view === 'node' ? `Node ${String(state.node).padStart(2, '0')}` : model.spec.name;
+  $('#inspector').innerHTML = `<div class="eyebrow inspector-label"><span class="status-dot"></span> COMPONENT INSPECTOR</div><p class="selection-context">${esc(context)}</p><div class="eyebrow type-label">${esc(c.type)}</div><h2 id="inspector-title" tabindex="-1">${esc(c.title)}</h2><p class="component-description">${esc(c.text)}</p><dl class="facts">${c.facts.map(([k,v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl><div class="insight"><span class="eyebrow">WHY THIS MATTERS</span><p>${esc(c.insight)}</p></div>${c.action ? `<button id="inspector-action" class="primary-button" data-view="${c.action[0]}">${esc(c.action[1])} <span aria-hidden="true">→</span></button>` : ''}${['gpu','hbm'].includes(state.selected) ? '<button id="memory-note" class="text-button memory-note" data-dialog="notes">¹ Memory and reference notes</button>' : ''}<details class="component-sources"><summary>Sources for this component <span>${c.sources.length}</span></summary><div>${c.sources.map(k => `<a href="${sources[k].url}" target="_blank" rel="noopener noreferrer">${esc(sources[k].title)} ↗</a>`).join('')}</div></details><button id="inspector-back" class="text-button inspector-back" data-scroll="diagram">Back to diagram ↑</button>`;
+  inspector.dataset.inspectionKey = inspectionKey;
+  if (changed) inspector.scrollTop = 0;
 }
-
 function renderTrace() {
-  $('#trace-tabs').innerHTML = Object.entries(traces).map(([k, t], i) => `<button id="trace-${k}" role="tab" aria-selected="${state.trace === k}" aria-controls="trace-content" tabindex="${state.trace === k ? '0' : '-1'}" class="trace-tab ${state.trace === k ? 'active' : ''}" data-trace="${k}"><span class="trace-number">0${i + 1}</span><span><strong>${t.name}</strong><small>${t.subtitle}</small></span><span class="trace-tab-arrow">↗</span></button>`).join('');
-  const t = traces[state.trace];
-  const mode = state.bandwidth === 'both' ? 1 : 0;
+  $('#trace-tabs').innerHTML = Object.entries(model.traces).map(([key,t], i) => `<button id="trace-${key}" role="tab" aria-selected="${state.trace === key}" aria-controls="trace-content" tabindex="${state.trace === key ? 0 : -1}" class="trace-tab ${state.trace === key ? 'active' : ''}" data-trace="${key}"><span class="trace-number">0${i + 1}</span><span><strong>${esc(t.name)}</strong><small>${esc(t.subtitle)}</small></span><span class="trace-tab-arrow" aria-hidden="true">↗</span></button>`).join('');
+  const t = model.traces[state.trace], mode = state.bandwidth === 'both' ? 1 : 0;
   $('#trace-content').setAttribute('aria-labelledby', `trace-${state.trace}`);
-  $('#trace-content').innerHTML = `<div class="trace-explanation"><div class="trace-chain">${t.chain.map((c, i) => `${i ? '<span class="chain-arrow" aria-hidden="true">→</span>' : ''}<span>${c}</span>`).join('')}</div><h3>${t.title}</h3><p>${t.body}</p></div><div class="trace-rate"><strong>${t.rate[mode]}</strong><span>${t.rateLabel[mode]}</span><p>${t.note}</p></div>`;
+  $('#trace-content').innerHTML = `<div class="trace-explanation"><div class="trace-chain">${t.chain.map((c, i) => `${i ? '<span aria-hidden="true">→</span>' : ''}<span class="chain-step">${esc(c)}</span>`).join('')}</div><h3>${esc(t.title)}</h3><p>${esc(t.body)}</p></div><div class="trace-rate"><strong>${esc(t.rate[mode])}</strong><span>${esc(t.rateLabel[mode])}</span><p>${esc(t.note)}</p></div>`;
 }
 
-function setView(key, selected = views[key]?.selected, keepTrace = false) {
-  if (!views[key]) return;
-  if (state.view !== key) state.zoom = 1;
-  state.view = key;
-  state.selected = selected;
-  if (!keepTrace) state.trace = ({ rack: 'peer', node: 'host', gpu: 'memory', cluster: 'remote' })[key];
-  history.replaceState(null, '', `#${key}`);
+function navigate(patch, { replace = false } = {}) {
+  const old = state;
+  const next = normalized({ ...state, ...patch });
+  state = { ...state, ...next, tour: patch.tour ?? -1 };
+  if (old.view !== state.view || old.systemId !== state.systemId) state.zoom = 1;
+  model = getModel(state.systemId);
+  const hash = writeRoute(state);
+  if (location.hash !== hash) history[replace ? 'replaceState' : 'pushState'](null, '', hash);
   render();
 }
+function setView(view, selected = model.views[view]?.selected, extra = {}) {
+  if (!model.views[view]) return;
+  const changed = state.view !== view;
+  navigate({mode:'explore', view, selected, trace: defaultTrace(model, view), ...extra});
+  if (changed && !document.activeElement.id.startsWith('nav-')) $('#view-title').scrollIntoView({block:'start'});
+}
 function setTrace(key, focus = false) {
-  if (!traces[key]) return;
-  state.trace = key;
-  setView(traces[key].view, traces[key].component, true);
-  if (focus) $(`#trace-${key}`).focus();
+  const t = model.traces[key];
+  if (!t) return;
+  navigate({view:t.view, selected:t.component, trace:key});
+  if (focus) $(`#trace-${key}`).focus({ preventScroll: true });
+}
+function restoreRoute() {
+  if (location.hash === '#main') return;
+  const next = normalized(readRoute(location.hash || '#gb300/learn'));
+  if (writeRoute(next) === writeRoute(state)) return;
+  state = { ...state, ...next, tour:-1, zoom:1 };
+  model = getModel(state.systemId);
+  render();
 }
 
+function tourSteps() {
+  const s = model.spec;
+  return [
+    {view:'rack', component:'rack', title:'Find the system boundary', text:isRack(s) ? `This rack has ${gpuCount(s)} GPUs across ${s.nodes} independent server nodes, joined by one GPU fabric.` : `${s.name} is one computer. Start by separating it from the other systems on the network.`},
+    {view:'node', component:'node', title:'Count CPUs and GPUs', text:`One node contains ${s.cpusPerNode} CPU${s.cpusPerNode > 1 ? 's' : ''} and ${s.gpusPerNode} GPU${s.gpusPerNode > 1 ? 's' : ''}. ${s.superchipsPerNode ? `Each superchip pairs one CPU with ${s.gpusPerSuperchip} GPU${s.gpusPerSuperchip > 1 ? 's' : ''}.` : 'These are x86 hosts with PCIe connections to the GPU subsystem.'}`},
+    {view:'node', component:s.cpusPerNode === 2 ? 'cpuLink' : s.hostKind === 'shared' ? 'hbm' : 'c2c', title:s.cpusPerNode === 2 ? 'Follow the host-side connection' : 'Follow coherent memory access', text:s.cpusPerNode === 2 ? 'CPU 0 and CPU 1 communicate over their host-side interconnect. It is separate from the GPU peer fabric.' : s.hostKind === 'shared' ? 'CPU and GPU share the same physical LPDDR memory. Count its capacity once.' : 'C2C connects the CPU and GPU coherently. HBM and host RAM still have different access speeds.'},
+    {view:'gpu', component:'hbm', title:'Inspect memory close to compute', text:s.layout === 'shared' ? 'GB10 uses shared LPDDR5X, not a dedicated HBM pool.' : s.gpuMemoryGB === null ? 'Each GPU has local HBM3e. The selected DGX datasheet reports system totals, leaving individual capacity and bandwidth unspecified; inspect the memory notes for the source differences.' : `${s.gpuMemoryGB} GB of ${s.memoryType} belongs to one GPU in this reference. ${s.computeDies} compute ${s.computeDies === 1 ? 'die forms' : 'dies form'} that logical accelerator.`},
+    {view:'cluster', component:'network', title:'Cross the system boundary', text:`${s.nicName} connects separate computers or rack domains. The network does not extend the local physical-memory boundary.`}
+  ];
+}
 function renderTour() {
   const el = $('#tour');
-  if (state.tour < 0) { el.hidden = true; return; }
-  const t = tourSteps[state.tour];
-  el.hidden = false;
-  el.innerHTML = `<div><span class="eyebrow">GUIDED TOUR / ${state.tour + 1} OF ${tourSteps.length}</span><h3>${t.title}</h3><p>${t.text}</p></div><div class="tour-controls"><button data-tour="prev" ${state.tour === 0 ? 'disabled' : ''} aria-label="Previous tour step">←</button><button class="primary-button" data-tour="next">${state.tour === tourSteps.length - 1 ? 'Finish tour ✓' : 'Next step →'}</button><button data-tour="close" aria-label="Close guided tour">×</button></div>`;
+  el.hidden = state.tour < 0;
+  if (el.hidden) return;
+  const steps = tourSteps(), t = steps[state.tour];
+  el.innerHTML = `<div><span class="eyebrow">GUIDED TOUR / ${state.tour + 1} OF ${steps.length}</span><h3>${esc(t.title)}</h3><p>${esc(t.text)}</p></div><div class="tour-controls"><button id="tour-prev" data-tour="prev" ${state.tour === 0 ? 'disabled' : ''} aria-label="Previous tour step">←</button><button id="tour-next" class="primary-button" data-tour="next">${state.tour === steps.length - 1 ? 'Finish tour ✓' : 'Next step →'}</button><button id="tour-close" data-tour="close" aria-label="Close guided tour">×</button></div>`;
 }
-function stepTour(step) {
-  if (step === 'close' || (step === 'next' && state.tour === tourSteps.length - 1)) { state.tour = -1; renderTour(); return; }
-  state.tour = step === 'start' ? 0 : Math.max(0, Math.min(tourSteps.length - 1, state.tour + (step === 'next' ? 1 : -1)));
-  const t = tourSteps[state.tour];
-  setView(t.view, t.component);
-  $('#view-title').scrollIntoView({ behavior: 'instant', block: 'start' });
+function stepTour(action) {
+  if (action === 'close' || action === 'next' && state.tour === tourSteps().length - 1) {
+    state.tour = -1; renderTour(); $('#tour-button').focus({preventScroll:true}); return;
+  }
+  const index = action === 'start' ? 0 : Math.max(0, state.tour + (action === 'next' ? 1 : -1));
+  const t = tourSteps()[index];
+  setView(t.view, t.component, {tour:index});
+  $('#tour-next').focus({ preventScroll:true });
+  $('#view-title').scrollIntoView({block:'start'});
 }
-
-const noteContent = `<p>This explorer follows a <strong>GB300 NVL72 reference layout</strong>. Counts and GPU connectivity are consistent across the cited sources; peripheral equipment and memory reporting vary by implementation.</p><h3>Bandwidth has a direction and a scope</h3><ul><li><strong>NVLink 5:</strong> 1,800 GB/s per GPU is send + receive, equivalent to 900 GB/s each way. It is the GPU’s aggregate interface budget, shared across peers.</li><li><strong>NVLink-C2C:</strong> 900 GB/s is the published bidirectional CPU–GPU interface rate. Its equivalent is 450 GB/s each way.</li><li><strong>Compute networking:</strong> 800 Gb/s is 100 GB/s per direction at the line-rate ceiling. Protocol overhead reduces application throughput.</li><li><strong>HBM:</strong> up to 8 TB/s is a local memory-interface specification. The direction toggle does not double it.</li></ul><h3>288 GB, 279 GB, or about 20 TB?</h3><p>NVIDIA’s architecture article describes a <strong>288 GB maximum per GPU</strong>, and notes that capacity varies by SKU. Other NVIDIA and cloud specifications quote 279 GB for particular configurations. The product page rounds total GPU memory to about 20 TB. This pilot uses the 288 GB architecture maximum in the package diagram, not a guarantee of allocatable memory.</p><p>72 × 288 GB = 20.736 TB at the architecture maximum. This is a calculated sum of distributed memories, not one equally fast shared pool. GB and TB here use decimal units; GiB and TiB are different units.</p><h3>Reference layout versus a specific machine</h3><p>The node diagram follows NVIDIA’s Enterprise reference: four ConnectX-8 adapters, one BlueField-3, and boot plus four cache devices. The DGX hardware guide lists a different BlueField count. Storage capacities, power, host memory, network switch tiers, and physical rack ordering can vary.</p><p>The cluster view is an illustrative two-rack path. It is neither a complete network bill of materials nor a performance simulation.</p>`;
+function updateZoom() {
+  const map = $('#diagram .architecture-map');
+  if (map) map.style.zoom = state.zoom;
+  $('#zoom-fit').textContent = `${Math.round(state.zoom * 100)}%`;
+  $('#zoom-out').disabled = state.zoom <= 1;
+  $('#zoom-in').disabled = state.zoom >= 2;
+}
 
 function openDialog(kind) {
-  const dialog = $('#info-dialog');
+  const s = model.spec;
+  $('#info-dialog').classList.remove('figure-dialog');
   if (kind === 'sources') {
-    $('#dialog-title').textContent = 'Research & sources';
-    $('#dialog-body').innerHTML = `<p>Primary documentation behind this pilot. Each component also links to its relevant sources. Checked November 1, 2026.</p><div class="source-list">${Object.values(sources).map((s, i) => `<article><span class="source-number">0${i + 1}</span><div><a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.title} ↗</a><small>${s.publisher}</small><p>${s.supports}</p></div></article>`).join('')}</div><div class="dialog-note">Publications sometimes differ in configuration and units. <button class="text-button" data-dialog="notes">Read the specification notes →</button></div>`;
+    $('#dialog-title').textContent = `Sources · ${s.name}`;
+    $('#dialog-body').innerHTML = `<p>Primary references for the selected configuration. Checked November 1, 2026. Document differences are recorded in the specification notes.</p><div class="source-list">${s.sources.map((key, i) => { const ref = sources[key]; return `<article><span class="source-number">${String(i + 1).padStart(2,'0')}</span><div><a href="${ref.url}" target="_blank" rel="noopener noreferrer">${esc(ref.title)} ↗</a><small>${esc(ref.publisher)}</small><p>${esc(ref.supports)}</p></div></article>`; }).join('')}</div><button class="text-button" data-dialog="notes">Read configuration and bandwidth notes →</button>`;
   } else if (kind === 'scope') {
-    $('#dialog-title').textContent = 'One pilot. A larger atlas.';
-    $('#dialog-body').innerHTML = `<p>GB300 NVL72 is the first working system. We’ll refine this experience before adding the other agreed families.</p><ol class="coverage-list"><li>H100 / H200 servers</li><li>Grace Hopper / GH200 systems</li><li>B200 / GB200 servers and racks</li><li><strong>B300 / GB300 servers and racks <span class="pilot">CURRENT PILOT</span></strong></li><li>Rubin / Vera Rubin systems</li><li>DGX Spark</li><li>DGX Station</li></ol><p>CPUs, memory, switches, networking, and storage will be explained as connected parts of each system.</p>`;
+    $('#dialog-title').textContent = 'Architecture guide';
+    $('#dialog-body').innerHTML = `<p>Ten reference configurations across the agreed families. Select a system to explore its actual CPU, GPU, memory and network arrangement.</p><div class="coverage-list">${Object.values(systems).map(ref => `<button data-system="${ref.id}"><strong>${esc(ref.name)}</strong><span>${esc(ref.family)} · ${isRack(ref) ? `${gpuCount(ref)}-GPU rack domain` : `${ref.gpusPerNode} GPU${ref.gpusPerNode > 1 ? 's' : ''} / system`}</span></button>`).join('')}</div><p>These are selected reference configurations, not an enumeration of every OEM, PCIe, SXM, NVL or memory-capacity variant.</p>`;
   } else {
-    $('#dialog-title').textContent = 'How to read these numbers';
-    $('#dialog-body').innerHTML = noteContent + `<div class="dialog-note"><button class="text-button" data-dialog="sources">Open the primary sources →</button></div>`;
+    $('#dialog-title').textContent = `Specification notes · ${s.name}`;
+    $('#dialog-body').innerHTML = `<p><strong>Reference:</strong> ${esc(s.reference)}.</p><h3>Configuration and source differences</h3><ul>${s.notes.map(note => `<li>${esc(note)}</li>`).join('')}</ul><h3>Bandwidth has a direction and a scope</h3><p>Peer NVLink rates sum send and receive at one GPU. One-direction equivalents divide that symmetric interface budget by two. The budget is shared across peers. A sum across many GPU interfaces is not a dedicated pairwise transfer speed.</p><p>Network rates use bits (Gb/s). Divide by eight to obtain bytes (GB/s) before protocol overhead. A card aggregate is not necessarily a single-port rate. CPU–GPU peaks refer to an interface or group, not a guaranteed full-rate link on every schematic branch.</p><p>Memory-interface specifications keep their published convention. Selecting send + receive does not double HBM or shared LPDDR bandwidth. Published peaks are not measured workload performance.</p><h3>Capacity and physical locality</h3><p>${s.layout === 'shared' ? 'Spark has a single physical LPDDR5X pool shared by CPU and GPU.' : 'Coherent or aggregate memory does not make all memory one physically uniform pool. CPU RAM and GPU HBM have different local and remote costs.'} GB and TB use decimal units here. GiB and TiB are different units.</p><h3>Reading the map</h3><p>These are logical architecture maps. Group boundaries describe compute and memory relationships, not physical die placement, exact PCIe lanes, rack-unit placement, or a network bill of materials.</p><button class="text-button" data-dialog="sources">Open the primary sources →</button>`;
   }
-  if (!dialog.open) dialog.showModal();
+  if (!$('#info-dialog').open) $('#info-dialog').showModal();
   $('#close-dialog').focus();
 }
+function selectSystem(id) {
+  if (!Object.hasOwn(systems, id)) return;
+  const m = getModel(id), view = m.spec.defaultView;
+  if ($('#info-dialog').open) $('#info-dialog').close();
+  navigate({systemId:id, mode:id === 'gb300' ? 'learn' : 'explore', lesson:0, lens:'groups', storyPath:'peer', placement:'same', view, node:1, gpu:0, selected:m.views[view].selected, trace:defaultTrace(m,view)});
+  $('#system-picker').focus({preventScroll:true});
+  window.scrollTo({top:0, behavior:'instant'});
+}
 
+// The selector survives renders; options and event bindings are installed once.
+const families = ['Hopper', 'Grace Hopper', 'Blackwell', 'Blackwell Ultra', 'Vera Rubin', 'Personal AI systems'];
+$('#system-picker').innerHTML = families.map(family => `<optgroup label="${esc(family)}">${Object.values(systems).filter(s => s.family === family).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</optgroup>`).join('');
+$('#system-picker').addEventListener('change', e => selectSystem(e.target.value));
 document.addEventListener('click', e => {
+  const learningAction = e.target.closest('[data-lesson], [data-lens], [data-story-path], [data-placement], [data-figure], [data-explore]');
+  if (learningAction) {
+    e.preventDefault();
+    const d = learningAction.dataset;
+    if (d.figure && figures[d.figure]) {
+      $('#info-dialog').classList.add('figure-dialog');
+      $('#dialog-title').textContent = figures[d.figure].title;
+      $('#dialog-body').innerHTML = figureDialog(d.figure);
+      $('#info-dialog').showModal();
+      $('#close-dialog').focus();
+    } else if (d.explore) {
+      setView(d.explore);
+      focusHeading();
+      $('#view-title').scrollIntoView({block:'start'});
+    } else if (d.lesson !== undefined) {
+      navigate({mode:'learn', lesson:Number(d.lesson)});
+      $('#learning-title').focus({preventScroll:true});
+      $('#main').scrollIntoView({block:'start'});
+    } else {
+      navigate(d.lens ? {lens:d.lens} : d.storyPath ? {storyPath:d.storyPath} : {placement:d.placement});
+    }
+    return;
+  }
   const view = e.target.closest('[data-view]');
   const component = e.target.closest('[data-component]');
   const trace = e.target.closest('[data-trace]');
   const info = e.target.closest('[data-dialog]');
   const tour = e.target.closest('[data-tour]');
-  const scroll = e.target.closest('[data-scroll]');
-  if (view) { setView(view.dataset.view); }
+  const system = e.target.closest('[data-system]');
+  if (view) { e.preventDefault(); setView(view.dataset.view); }
   else if (component) {
-    if (component.dataset.node) state.node = Number(component.dataset.node);
-    if (component.dataset.go) setView(component.dataset.go);
-    else { state.selected = component.dataset.component; render(); if (innerWidth <= 1000) $('#inspector').scrollIntoView({ behavior: 'instant', block: 'start' }); }
+    const extra = {};
+    if (component.dataset.node !== undefined) extra.node = Number(component.dataset.node);
+    if (component.dataset.gpu !== undefined) extra.gpu = Number(component.dataset.gpu);
+    if (component.dataset.go) setView(component.dataset.go, component.dataset.component, extra);
+    else {
+      navigate({selected:component.dataset.component, ...extra});
+      if (innerWidth <= 1200 && e.detail > 0) {
+        $('#inspector-title').focus({preventScroll:true});
+        $('#inspector-title').scrollIntoView({block:'start'});
+      }
+    }
   } else if (trace) setTrace(trace.dataset.trace);
   else if (info) openDialog(info.dataset.dialog);
   else if (tour) stepTour(tour.dataset.tour);
-  else if (scroll) $('#view-title').scrollIntoView({ behavior: 'instant', block: 'start' });
+  else if (system) selectSystem(system.dataset.system);
+  else if (e.target.closest('[data-scroll]')) { focusHeading(); $('#view-title').scrollIntoView({block:'start'}); }
 });
 document.addEventListener('keydown', e => {
-  const component = e.target.closest('[data-component]');
-  if (component && ['Enter', ' '].includes(e.key)) { e.preventDefault(); component.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
   const tab = e.target.closest('[data-trace]');
-  if (tab && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
-    e.preventDefault();
-    const keys = Object.keys(traces);
-    let i = keys.indexOf(state.trace);
-    i = e.key === 'Home' ? 0 : e.key === 'End' ? keys.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length;
-    setTrace(keys[i], true);
-  }
+  if (!tab || !['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+  e.preventDefault();
+  const keys = Object.keys(model.traces), current = keys.indexOf(state.trace);
+  const i = e.key === 'Home' ? 0 : e.key === 'End' ? keys.length - 1 : (current + (e.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length;
+  setTrace(keys[i], true);
 });
 $('#labels-button').addEventListener('click', () => { state.labels = !state.labels; render(); });
-$('#reset-button').addEventListener('click', () => { state.node = 1; state.labels = true; state.tour = -1; state.zoom = 1; setView('rack'); });
-function updateZoom() {
-  const diagram = $('#diagram svg');
-  diagram.style.width = `${state.zoom * 100}%`;
-  diagram.style.minWidth = `${560 * state.zoom}px`;
-  $('#zoom-fit').textContent = `${Math.round(state.zoom * 100)}%`;
-  $('#zoom-out').disabled = state.zoom <= 1;
-  $('#zoom-in').disabled = state.zoom >= 2;
-}
+$('#experience-toggle').addEventListener('click', () => {
+  if (state.mode === 'learn') {
+    setView('rack');
+    focusHeading();
+    $('#view-title').scrollIntoView({block:'start'});
+  } else {
+    navigate({mode:'learn', lesson:0});
+    $('#learning-title').focus({preventScroll:true});
+    $('#main').scrollIntoView({block:'start'});
+  }
+});
+$('#reset-button').addEventListener('click', () => {
+  state = {...state, ...defaults};
+  document.querySelector('[name="bandwidth"][value="oneway"]').checked = true;
+  setView(model.spec.defaultView, model.views[model.spec.defaultView].selected, {node:1,gpu:0});
+});
 $('#zoom-in').addEventListener('click', () => { state.zoom = Math.min(2, state.zoom + .25); updateZoom(); });
 $('#zoom-out').addEventListener('click', () => { state.zoom = Math.max(1, state.zoom - .25); updateZoom(); });
 $('#zoom-fit').addEventListener('click', () => { state.zoom = 1; updateZoom(); $('#diagram').scrollLeft = 0; });
@@ -251,9 +290,14 @@ $('#sources-button').addEventListener('click', () => openDialog('sources'));
 $('#scope-button').addEventListener('click', () => openDialog('scope'));
 $('#notes-button').addEventListener('click', () => openDialog('notes'));
 $('#close-dialog').addEventListener('click', () => $('#info-dialog').close());
-$('#info-dialog').addEventListener('click', e => { if (e.target === $('#info-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
+$('#info-dialog').addEventListener('click', e => {
+  if (e.target !== $('#info-dialog')) return;
+  const r = e.target.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+});
 $('#tour-button').addEventListener('click', () => stepTour('start'));
 document.querySelectorAll('[name="bandwidth"]').forEach(el => el.addEventListener('change', e => { state.bandwidth = e.target.value; renderTrace(); }));
-window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (views[v]) setView(v); });
-state.trace = ({ rack: 'peer', node: 'host', gpu: 'memory', cluster: 'remote' })[state.view];
+window.addEventListener('popstate', restoreRoute);
+window.addEventListener('hashchange', restoreRoute);
+history.replaceState(null, '', writeRoute(state));
 render();

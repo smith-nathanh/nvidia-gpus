@@ -1,36 +1,38 @@
 # NVIDIA Systems Explorer
 
-A locally launched architecture explorer. The first pilot covers **GB300 NVL72**.
+A local, source-backed interactive guide to NVIDIA system architecture: memory → CPU/GPU grouping → server → rack/domain → external network.
 
-For another agent picking up this project, start with [project goals and agreed architecture coverage](docs/PROJECT_GOALS.md), then read the [implementation handoff](HANDOFF.md). [AGENTS.md](AGENTS.md) contains repository working notes.
+Ten reference configurations are included: **DGX H100, DGX H200, GH200, DGX B200, GB200 NVL72, DGX B300, GB300 NVL72, Vera Rubin NVL72, DGX Spark, and DGX Station.**
+
+Read [the project goals](docs/PROJECT_GOALS.md), then [the implementation handoff](HANDOFF.md) for scope, source conventions and verification details. [The architecture review](docs/ARCHITECTURE_REVIEW.md) records the independent reviews of all ten references and their corrections. [AGENTS.md](AGENTS.md) records repository working instructions.
 
 ## Run
 
-Requires Node.js 18 or later. There are no packages to install.
+Requires Node.js 18+. No dependencies to install and no build step.
 
 ```sh
 npm start
 ```
 
-Open http://127.0.0.1:4173. Set `PORT` if you need a different port. Stop the server with Ctrl+C.
+Open [the local app](http://127.0.0.1:4173/). Use `PORT=4174 npm start` for another port. Reload after edits: there is no hot reload. **`dist/` is editable source**, not generated output.
 
 ## Explore
 
-- **Rack:** 18 compute nodes and nine NVLink switch trays; click a compute tray to drill into that node.
-- **Node:** two GB300 superchips, four GPUs, two Grace CPUs, NICs, and local storage.
-- **GPU:** two compute dies, eight HBM3e stacks, and distinct CPU/GPU interfaces.
-- **Between racks:** separate NVLink domains connected over an external compute network.
-- Select a component for its explanation and primary sources. The four data-path examples change the view and explain bandwidth scope and direction.
-- Use diagram zoom, the bandwidth convention toggle, guided tour, and research/specification dialogs for more context.
-- Keyboard: Tab to components, Enter/Space to inspect; arrow keys move between data-path tabs. Escape closes dialogs.
+Choose a reference system, then move between system/rack context, a compute node, a GPU and its memory, and connections between systems. Click a component for explanations, scoped facts and primary sources. Arrow-marked cards drill down.
 
-## Research conventions
+Rack-scale systems expose numbered compute nodes. GPU drill-down retains the node, superchip and GPU identity. Full hash bookmarks and browser Back/Forward preserve that context. Legacy pilot links still work.
 
-This is a logical teaching schematic, not an exact rack elevation or port-level cabling plan. It follows NVIDIA's Enterprise reference node (one BlueField-3 DPU) and explains the differences from the DGX peripheral configuration. Cluster networking is illustrative. GPU capacity uses the **288 GB architecture maximum**; publications also quote 279 GB for particular configurations, and NVIDIA rounds rack HBM to about 20 TB. These distinctions are explained in the app.
+Each system has a guided tour and relevant communication examples. Single-GPU configurations omit the local peer-GPU example. Use One direction / Send + receive to inspect interface conventions; local HBM and shared-memory bandwidth retain their published value. Component maps reflow in narrow panels and can be zoomed.
 
-Bandwidth figures are published peaks, not measured workload results. NVLink is shared across peer transfers. Aggregated memory across GPUs is distributed, not one uniform pool. HBM bandwidth is not doubled when selecting send + receive.
+Keyboard: Tab to native controls; Enter/Space to activate; arrow keys/Home/End switch data-path tabs; Escape closes dialogs.
 
-Source URLs and component data are in `dist/data.js`, checked November 1, 2026. Rendering and interaction are in `dist/app.js`; no external scripts, fonts, or services are needed to run the app offline after startup. Source links require internet access.
+## Reference conventions
+
+These are selected configurations, not every variant. The model distinguishes x86 GPU servers, Grace/Vera rack systems, a single GH200 HBM3e superchip, Spark’s shared physical LPDDR5X, and Station’s one-GPU Desktop Superchip. CPU-to-CPU, CPU-to-GPU, local-memory, peer-GPU and scale-out connections have different roles.
+
+Primary links and source disagreements are available per system. Examples include B300 hardware-guide versus product-page memory totals and Rubin’s current product rates versus earlier architecture figures. Published peaks are not measured performance, and logical maps are not exact port/cabling plans.
+
+No external scripts, fonts, APIs or accounts are needed to run the app. Source links require internet access.
 
 ## Check
 
@@ -38,8 +40,4 @@ Source URLs and component data are in `dist/data.js`, checked November 1, 2026. 
 npm run check
 ```
 
-Checks JavaScript syntax and important architecture, unit-conversion, and source-reference invariants.
-
-## Agreed future coverage
-
-H100/H200; Grace Hopper/GH200; B200/GB200; B300/GB300; Rubin/Vera Rubin; DGX Spark; DGX Station. Only GB300 NVL72 is implemented in the pilot.
+Checks syntax, ten reference fixtures, all forty map outputs, source/action references, host links, GPU inventories, route identity and bandwidth conventions. Browser checks remain necessary for layout, focus, history and interaction behavior.

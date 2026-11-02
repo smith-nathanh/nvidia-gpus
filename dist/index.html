@@ -4,40 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#172b24">
-  <meta name="description" content="Explore GB300 NVL72 architecture, from the memory on one GPU to the network between racks.">
-  <title>GB300 NVL72 · NVIDIA Systems Explorer</title>
+  <meta name="description" content="Explore NVIDIA systems from Hopper to Vera Rubin, DGX Spark and DGX Station. Follow memory, GPUs, CPUs, servers and networks.">
+  <title>NVIDIA Systems Explorer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23172b24'/%3E%3Cpath d='M8 8h16v16H8z' fill='none' stroke='%23b3df7c' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./learning.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to architecture</a>
   <header class="topbar">
-    <a class="brand" href="#rack" aria-label="Systems Explorer home"><span class="brand-symbol" aria-hidden="true">▦</span><span>SYSTEMS<span class="brand-light"> / EXPLORER</span></span></a>
+    <a class="brand" href="#rack" data-view="rack" aria-label="Systems Explorer home"><span class="brand-symbol" aria-hidden="true">▦</span><span>SYSTEMS<span class="brand-light"> / EXPLORER</span></span></a>
     <span class="top-caption">NVIDIA ARCHITECTURE ATLAS</span>
     <button id="sources-button" class="top-button">Research & sources <span aria-hidden="true">↗</span></button>
   </header>
   <div class="shell">
     <aside class="sidebar" aria-label="System navigation">
       <div class="eyebrow">CURRENT SYSTEM</div>
-      <div class="system-name">GB300 NVL72 <span class="pilot">PILOT</span></div>
-      <p class="system-sub">Grace Blackwell Ultra</p>
+      <label class="system-picker-label" for="system-picker">Choose a reference system</label>
+      <select id="system-picker"></select>
+      <div id="system-name" class="system-name">GB300 NVL72</div>
+      <p id="system-family" class="system-sub">Blackwell Ultra</p>
       <div class="sidebar-rule"></div>
-      <div class="eyebrow">EXPLORE THE ARCHITECTURE</div>
+      <div id="nav-label" class="eyebrow">EXPLORE THE ARCHITECTURE</div>
       <nav id="scale-nav" class="scale-nav" aria-label="Architecture scale"></nav>
+      <button id="experience-toggle" class="text-button" hidden>Open architecture explorer →</button>
       <div class="sidebar-note"><span class="status-dot"></span><span>One system, four scales.<br>Follow the hardware all the way down.</span></div>
       <button id="tour-button" class="tour-button"><span>◎</span> Take the guided tour <span>→</span></button>
-      <div class="sidebar-bottom"><div class="eyebrow">THE BIG PICTURE</div><p>A GPU is a component.<br>A node is a computer.<br>NVL72 is their shared fabric.</p><button id="scope-button" class="text-button">View planned coverage ↗</button></div>
+      <div class="sidebar-bottom"><div class="eyebrow">THE BIG PICTURE</div><p id="sidebar-summary"></p><button id="scope-button" class="text-button">Architecture guide ↗</button></div>
     </aside>
     <main id="main" tabindex="-1">
-      <div class="page-intro"><div><div class="eyebrow overline"><span class="tiny-square"></span> BLACKWELL ULTRA / SYSTEM 01</div><h1>GB300 NVL72</h1><p class="subtitle">From one GPU to an entire rack. See how it all connects.</p></div><div class="reference-tag"><span class="status-dot"></span> NVIDIA reference layout</div></div>
+      <section id="learning-page" aria-label="GB300 architecture lesson" hidden></section>
+      <div class="page-intro"><div><div class="eyebrow overline"><span class="tiny-square"></span><span id="page-family">BLACKWELL ULTRA / RACK-SCALE</span></div><h1 id="page-title">GB300 NVL72</h1><p class="subtitle">Follow the memory, the compute, and the connections between them.</p></div></div>
+      <div class="reference-summary"><strong>REFERENCE</strong><span id="reference-summary"></span><small id="model-status"></small></div>
       <div id="stats" class="stats" aria-label="Rack specifications"></div>
       <section class="workbench" aria-label="Interactive architecture explorer">
-        <div class="workbench-top"><div id="breadcrumbs" class="breadcrumbs"></div><div class="canvas-tools"><button id="labels-button" aria-pressed="true" title="Toggle bandwidth labels">Link labels <span id="label-indicator">ON</span></button><button id="reset-button" title="Return to the rack overview">↺ Reset</button></div></div>
-        <div class="explorer-grid"><section class="diagram-pane" aria-labelledby="view-title"><div class="diagram-heading"><div><div id="view-kicker" class="eyebrow"></div><h2 id="view-title"></h2></div><span class="diagram-hint">Select a component to inspect <span>↗</span></span></div><div id="diagram" class="diagram-viewport"></div><div class="diagram-footer"><div class="legend"><span><i class="gpu-color"></i> GPU / NVLink</span><span><i class="cpu-color"></i> CPU / C2C</span><span><i class="net-color"></i> Network</span><span><i class="storage-color"></i> Storage</span></div><div class="zoom-tools"><span>Logical schematic</span><button id="zoom-out" aria-label="Zoom diagram out">−</button><button id="zoom-fit" aria-label="Reset diagram zoom">100%</button><button id="zoom-in" aria-label="Zoom diagram in">+</button></div></div></section><aside id="inspector" class="inspector" aria-label="Selected component details" aria-live="polite"></aside></div>
+        <div class="workbench-top"><div id="breadcrumbs" class="breadcrumbs"></div><div class="canvas-tools"><button id="labels-button" aria-pressed="true" title="Toggle link bandwidth annotations">Link labels <span id="label-indicator">ON</span></button><button id="reset-button" title="Reset the current system view">↺ Reset</button></div></div>
+        <div class="explorer-grid"><section class="diagram-pane" aria-labelledby="view-title"><div class="diagram-heading"><div><div id="view-kicker" class="eyebrow"></div><h2 id="view-title" tabindex="-1"></h2><p class="diagram-hint">Select a component to inspect it. Arrows open the next scale.</p></div></div><div id="diagram" class="diagram-viewport"></div><div class="diagram-footer"><div class="legend"><span><i class="gpu-color"></i> GPU / NVLink</span><span><i class="cpu-color"></i> CPU / host link</span><span><i class="net-color"></i> Network</span><span><i class="storage-color"></i> Storage</span></div><div class="zoom-tools"><span>Logical map</span><button id="zoom-out" aria-label="Zoom diagram out">−</button><button id="zoom-fit" aria-label="Reset diagram zoom">100%</button><button id="zoom-in" aria-label="Zoom diagram in">+</button></div></div></section><aside id="inspector" class="inspector" aria-label="Selected component details" aria-live="polite"></aside></div>
       </section>
-      <section class="trace-section" aria-labelledby="trace-title"><div class="trace-header"><div><div class="eyebrow">FOLLOW THE DATA</div><h2 id="trace-title">Four paths. Very different connections.</h2></div><fieldset class="direction-control"><legend class="sr-only">Bandwidth convention</legend><label><input type="radio" name="bandwidth" value="oneway" checked><span>One direction</span></label><label><input type="radio" name="bandwidth" value="both"><span>Send + receive</span></label></fieldset></div><div id="trace-tabs" class="trace-tabs" role="tablist" aria-label="Example communication paths"></div><div id="trace-content" class="trace-content" role="tabpanel"></div></section>
-      <div id="tour" class="tour" hidden></div>
+      <section class="trace-section" aria-labelledby="trace-title"><div class="trace-header"><div><div class="eyebrow">FOLLOW THE DATA</div><h2 id="trace-title">Different paths. Different connections.</h2></div><fieldset class="direction-control"><legend class="sr-only">Bandwidth convention</legend><label><input type="radio" name="bandwidth" value="oneway" checked><span>One direction</span></label><label><input type="radio" name="bandwidth" value="both"><span>Send + receive</span></label></fieldset></div><div id="trace-tabs" class="trace-tabs" role="tablist" aria-label="Example communication paths"></div><div id="trace-content" class="trace-content" role="tabpanel"></div></section>
+      <div id="tour" class="tour" role="region" aria-label="Guided architecture tour" hidden></div>
+      <section class="reading-section" aria-labelledby="reading-title">
+        <div class="eyebrow">OFFICIAL DOCUMENTATION</div>
+        <h2 id="reading-title">Read more at NVIDIA</h2>
+        <p id="reading-context" class="reading-context"></p>
+        <div id="reading-links" class="reading-links"></div>
+        <div class="reading-actions"><button class="text-button" data-dialog="sources">All sources for this system →</button><button class="text-button" data-dialog="notes">Configuration differences &amp; number conventions →</button></div>
+      </section>
       <footer class="page-footer"><span>Independent learning tool · Sources checked November 1, 2026</span><button id="notes-button" class="text-button">How to read these numbers ↗</button></footer>
     </main>
   </div>

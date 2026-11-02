@@ -5,7 +5,7 @@
   "description": "A local, source-backed explorer of NVIDIA GPU system architecture.",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check dist/app.js && node --check dist/data.js && node scripts/check-data.mjs"
+    "check": "node --check server.mjs && node --check dist/app.js && node --check dist/data.js && node --check dist/models.js && node --check dist/diagrams.js && node --check dist/navigation.js && node --check dist/learning.js && node scripts/check-data.mjs && node scripts/check-models.mjs && node scripts/check-learning.mjs"
   },
   "type": "module",
   "engines": { "node": ">=18" }
