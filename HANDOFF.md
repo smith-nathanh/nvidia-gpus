@@ -4,7 +4,7 @@ Updated November 2, 2026. Read [the project goals](docs/PROJECT_GOALS.md) first 
 
 ## All ten visual lessons · November 2
 
-The user approved the GB300 visual redesign, requested the same caliber for all nine other references, and authorized creating a private GitHub repository. The approved checkpoint is `55300b3`, pushed to `main` and `codex/gb300-learning-redesign` at [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus). The completed expansion is on `codex/all-architecture-lessons`; `main` retains the approved checkpoint for comparison. Check Git for the current expansion commit/push state.
+The user approved the complete ten-system redesign as the new app and explicitly requested promoting it to `main` and pushing everything to the private [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus) repository. The implementation is commit `60adfc7`, developed on `codex/all-architecture-lessons` and promoted to `main` with an accompanying approval-record update. The earlier GB300 checkpoint `55300b3` remains on `codex/gb300-learning-redesign` for comparison.
 
 **Every system now opens a four-part lesson.** Each starts with the boundary the reader needs to understand, guides them through actual NVIDIA material, distinguishes data paths, then changes a concrete workload example. All forty detailed explorer maps remain available through the sidebar and existing bookmarks. Lesson URLs preserve step, figure highlight, destination and scenario; entering a lesson consistently resets physical explorer identity to node 1 / GPU 0, including after reload.
 
@@ -159,8 +159,8 @@ The subsequent subagent review corrected rack endpoint numbering and B300 source
 
 The user’s educational context is real-world distributed LLM training, with existing CPU-only Slurm experience. The visual lessons now implement fixed rank-placement and memory-budget/locality examples. A full Slurm launch workflow, training-step communication overlay, arbitrary parallelism planner, troubleshooting and checkpoint recovery remain suggestions for discussion, not implemented features or separately approved expansion.
 
-Further useful work: have the user assess the broader learning experience, refine explanation depth and long-map navigation based on their feedback, then consider additional exact SKU variants and a real comparison interface. Do not silently add hosted deployment, benchmark predictions or unsupported port-level detail.
+The user has approved the broader learning experience as the new app. Further useful work can refine explanation depth and navigation based on specific feedback, then consider additional exact SKU variants and a real comparison interface. Do not silently add hosted deployment, benchmark predictions or unsupported port-level detail.
 
 ## Git
 
-Private remote: `git@github.com:smith-nathanh/nvidia-gpus.git`. Default branch `main` and `codex/gb300-learning-redesign` hold approved checkpoint `55300b3`. Expansion branch: `codex/all-architecture-lessons`. Inspect `git status`, `git log` and remote tracking for its latest commit and push state. GitHub repository visibility was explicitly verified private. The app is still served locally; no hosted site was deployed.
+Private remote: `git@github.com:smith-nathanh/nvidia-gpus.git`. Default branch `main` contains the approved ten-system redesign (`60adfc7`) and its approval record. Development branch: `codex/all-architecture-lessons`. The original pilot checkpoint remains on `codex/gb300-learning-redesign` at `55300b3`. Inspect `git status`, `git log` and remote tracking for the latest commit and push state. GitHub repository visibility was explicitly verified private. The app is still served locally; no hosted site was deployed.

@@ -2,7 +2,7 @@
 
 ## Authorization and checkpoint
 
-The user approved the GB300 lesson and asked to push it, then redesign all nine remaining systems to the same caliber. They explicitly permit Astra subagents and expect work to survive compaction. Approved checkpoint: `55300b3` on `codex/gb300-learning-redesign`. The user authorized creating a private GitHub repository with the installed CLI. Created [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus) (verified private), pushed approved checkpoint `55300b3` to `main` and `codex/gb300-learning-redesign`; `main` is default. Completed expansion is on `codex/all-architecture-lessons`. Inspect its remote-tracking state for the current push status.
+The user approved the GB300 lesson and asked to push it, then redesign all nine remaining systems to the same caliber. They explicitly permit Astra subagents and expect work to survive compaction. Original checkpoint: `55300b3` on `codex/gb300-learning-redesign`. The user authorized creating the private [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus) repository (visibility verified). Completed expansion `60adfc7` was developed and pushed on `codex/all-architecture-lessons`. On November 2, 2026, the user approved the complete redesign as the new app and requested its promotion to default branch `main`. Both `main` and the development branch include the redesign and its approval record; the pilot branch retains the earlier checkpoint. Inspect remote-tracking state for the latest push status.
 
 ## Quality bar
 
