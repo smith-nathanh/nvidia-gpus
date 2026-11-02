@@ -1,0 +1,1648 @@
+{
+  "checked": "2026-11-02",
+  "desktopLessons": [
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "18 servers.One GPU fabric."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A server is built fromtwo CPU–GPU groups."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "The destinationdetermines the path."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same GPU count.Different placement."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One server.Eight connected GPUs."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One chassis containstwo different interconnects."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A tensor’s locationchooses its path."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight ranks fit here.Placement still matters."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More memory per GPU.The same server boundary."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A familiar fabric.A larger local working set."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More HBM changes fit.It does not erase distance."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Keep eight ranks.Move the server boundary."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One CPU. One GPU.Two memory homes."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "An address is nota physical location."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Where the bytes livechanges the access path."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same 100 GB buffer.Different locality."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "B200 GPUs.An x86 DGX server."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "New GPU fabric.Still a PCIe host."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "B200 is the GPU.GB200 is a different system."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight GPUs stay eight.Their locality can change."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Your node countis not your fabric count."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One tray.Two communication tiers."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Follow the tensor,not the rack label."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two nodes can meantwo different paths."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Blackwell Ultra.One eight-GPU server."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Follow the NIC path.Then the host path."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two PCIe generations.Different endpoints."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Faster networking.Still a separate domain."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "New chips.The rack boundary still matters."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One modular tray.Three distinct roles."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More memory tiers.Different routes to each."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight ranks.Choose their fabric boundary."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "CPU and GPU.One 128 GB pool."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two compute tiles.One memory budget."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Inside one Spark,sharing is physical."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More GPU allocations.Less room for everything else."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "748 GB accessible.252 GB GPU-local."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Look inside one GPU.Keep the boundaries straight."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One GPU can reachdifferent memory tiers."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same 200 GB buffer.Two ways to feed the GPU."
+    }
+  ],
+  "narrowLessons": [
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "18 servers.One GPU fabric."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A server is built fromtwo CPU–GPU groups."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "The destinationdetermines the path."
+    },
+    {
+      "broken": [],
+      "id": "gb300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same GPU count.Different placement."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One server.Eight connected GPUs."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One chassis containstwo different interconnects."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A tensor’s locationchooses its path."
+    },
+    {
+      "broken": [],
+      "id": "h100",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight ranks fit here.Placement still matters."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More memory per GPU.The same server boundary."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "A familiar fabric.A larger local working set."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More HBM changes fit.It does not erase distance."
+    },
+    {
+      "broken": [],
+      "id": "h200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Keep eight ranks.Move the server boundary."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One CPU. One GPU.Two memory homes."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "An address is nota physical location."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Where the bytes livechanges the access path."
+    },
+    {
+      "broken": [],
+      "id": "gh200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same 100 GB buffer.Different locality."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "B200 GPUs.An x86 DGX server."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "New GPU fabric.Still a PCIe host."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "B200 is the GPU.GB200 is a different system."
+    },
+    {
+      "broken": [],
+      "id": "b200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight GPUs stay eight.Their locality can change."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Your node countis not your fabric count."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One tray.Two communication tiers."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Follow the tensor,not the rack label."
+    },
+    {
+      "broken": [],
+      "id": "gb200",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two nodes can meantwo different paths."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Blackwell Ultra.One eight-GPU server."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Follow the NIC path.Then the host path."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two PCIe generations.Different endpoints."
+    },
+    {
+      "broken": [],
+      "id": "b300",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Faster networking.Still a separate domain."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "New chips.The rack boundary still matters."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One modular tray.Three distinct roles."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More memory tiers.Different routes to each."
+    },
+    {
+      "broken": [],
+      "id": "rubin",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Eight ranks.Choose their fabric boundary."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "CPU and GPU.One 128 GB pool."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Two compute tiles.One memory budget."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Inside one Spark,sharing is physical."
+    },
+    {
+      "broken": [],
+      "id": "spark",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "More GPU allocations.Less room for everything else."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "748 GB accessible.252 GB GPU-local."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Look inside one GPU.Keep the boundaries straight."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "One GPU can reachdifferent memory tiers."
+    },
+    {
+      "broken": [],
+      "id": "station",
+      "missing": false,
+      "overflow": false,
+      "small": [],
+      "title": "Same 200 GB buffer.Two ways to feed the GPU."
+    }
+  ],
+  "keyboardChoices": [
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb300"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h100"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "h200"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gh200"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b200"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "gb200"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "b300"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "destination-peer",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "rubin"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "spark"
+    },
+    {
+      "focus": "lens-groups",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "lens-network",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "lens-storage",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "destination-memory",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "destination-host",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "destination-remote",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "placement-same",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    },
+    {
+      "focus": "placement-split",
+      "missing": false,
+      "overflow": false,
+      "pressed": "true",
+      "system": "station"
+    }
+  ],
+  "narrowExplorerMaps": [
+    {
+      "focus": "nav-rack",
+      "heading": "72 GPUs share one NVLink domain",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb300",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "One compute tray is one server",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb300",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb300",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb300",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h100",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX H100",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h100",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "One compute die, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h100",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h100",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h200",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX H200",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h200",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "One compute die, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h200",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "h200",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gh200",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside GH200",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gh200",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "One compute die, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gh200",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gh200",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b200",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX B200",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b200",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b200",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b200",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "72 GPUs share one NVLink domain",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb200",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "One compute tray is one server",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb200",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb200",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "gb200",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b300",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX B300",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b300",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b300",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "b300",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "72 GPUs share one NVLink domain",
+      "missing": false,
+      "overflow": false,
+      "systemId": "rubin",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "One compute tray is one server",
+      "missing": false,
+      "overflow": false,
+      "systemId": "rubin",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "rubin",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "rubin",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "spark",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX Spark",
+      "missing": false,
+      "overflow": false,
+      "systemId": "spark",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "CPU and GPU share physical memory",
+      "missing": false,
+      "overflow": false,
+      "systemId": "spark",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "spark",
+      "viewKey": "cluster"
+    },
+    {
+      "focus": "nav-rack",
+      "heading": "A system has a boundary",
+      "missing": false,
+      "overflow": false,
+      "systemId": "station",
+      "viewKey": "rack"
+    },
+    {
+      "focus": "nav-node",
+      "heading": "Inside DGX Station",
+      "missing": false,
+      "overflow": false,
+      "systemId": "station",
+      "viewKey": "node"
+    },
+    {
+      "focus": "nav-gpu",
+      "heading": "Two compute dies, one GPU",
+      "missing": false,
+      "overflow": false,
+      "systemId": "station",
+      "viewKey": "gpu"
+    },
+    {
+      "focus": "nav-cluster",
+      "heading": "The external network joins separate systems",
+      "missing": false,
+      "overflow": false,
+      "systemId": "station",
+      "viewKey": "cluster"
+    }
+  ],
+  "figureDialogs": [
+    {
+      "caption": "NVIDIA explicitly publishes this topology for both DGX H100 and DGX H200. Read the lower GPU/NVSwitch fabric separately from the upper PCIe host and peripheral paths. HBM and CPU DIMMs are not drawn.",
+      "id": "h100",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "This is DGX B200, not a GB200 Grace-based tray. The two switches at the bottom serve all eight GPUs. Their separate purple PCIe connection is a control path, not the GPU peer-data fabric. The original image has limited resolution.",
+      "id": "b200",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "Use the legend: the GPU-to-ConnectX-8 connection is PCIe Gen6; the CPU-facing path is PCIe Gen5. The many lines beneath the GPUs are the separate NVLink fabric. Memory capacities are not shown; the DGX datasheet and hardware guide disagree on HBM capacity.",
+      "id": "b300",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "The upper enclosure is one server. The cable cartridge and nine switch trays below belong to the rack. Light blue means CPU–GPU C2C, pink means CPU-to-CPU CLinks, purple means PCIe, and the thin colored lines below the GPUs are peer NVLink.",
+      "id": "gb200",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "This January architecture figure shows component placement, not wiring. Its 14.4 TB/s tray NVLink uses the earlier 3.6 TB/s-per-GPU figure. The current product table used here gives 3 TB/s NVLink and 19.2 TB/s HBM per GPU; the article’s earlier HBM figure is 22 TB/s. “4 TB Fast Memory” combines CPU LPDDR and GPU HBM.",
+      "id": "rubin",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "NVIDIA’s 2022 HBM3-era illustration teaches the addressing mechanism. This lesson selects the later 144 GB HBM3e GH200. The diagonal arrows represent address translation/access relationships, not physical cables. “Remote” here means the other processor’s memory inside this superchip.",
+      "id": "gh200",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "The two CPU boxes are core clusters within one 20-core CPU. The two tiles are a CPU/system tile and a GPU tile, not two GPUs. The memory-controller block serves the shared physical LPDDR5X; the memory chips themselves are outside this figure.",
+      "id": "spark",
+      "image": true,
+      "open": true
+    },
+    {
+      "caption": "Architecture illustration, not a DGX Station wiring diagram. Its 288 GB / 8 TB/s HBM labels are architecture maxima; this Station has 252 GB / 7.1 TB/s. The peer-NVLink capability shown at left does not establish an NVSwitch fabric inside Station. The PCIe host-interface label describes another GPU capability; this Station’s paired Grace CPU uses C2C. Grace and its 496 GB LPDDR5X are outside this GPU picture.",
+      "id": "station",
+      "image": true,
+      "open": true
+    }
+  ],
+  "history": {
+    "sparkBookmark": "http://127.0.0.1:4173/#spark/learn?step=3&transfer=memory&placement=split",
+    "sparkRestore": {
+      "pressed": "true",
+      "total": "Total requested136 / 128 GB"
+    },
+    "sparkBack": "true",
+    "sparkForward": "true",
+    "rubinBookmark": "http://127.0.0.1:4173/#rubin/learn?step=1&lens=storage",
+    "rubinLensRestored": true
+  },
+  "lessonExit": {
+    "legacyIdentity": "http://127.0.0.1:4173/#gb300/gpu?node=7&gpu=3&component=gpu&path=memory",
+    "exitBeforeReload": "http://127.0.0.1:4173/#gb300/gpu?node=1&gpu=0&component=gpu&path=memory",
+    "exitAfterReload": "http://127.0.0.1:4173/#gb300/gpu?node=1&gpu=0&component=gpu&path=memory"
+  },
+  "stationLessonSources": true,
+  "consoleWarningsAndErrors": []
+}

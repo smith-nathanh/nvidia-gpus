@@ -1,7 +1,7 @@
 import { systems, sources, readingSources, getModel, bandwidth, gpuCount, cpuCount, isRack } from './models.js';
 import { diagram } from './diagrams.js';
 import { readRoute, writeRoute, viewKeys } from './navigation.js';
-import { lessonSteps, learningPage, figures, figureDialog } from './learning.js';
+import { lessonSteps, lessonOptions, lessonReferences, learningPage, figures, figureDialog } from './learning.js';
 
 const $ = q => document.querySelector(q);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -11,16 +11,20 @@ const defaultTrace = (model, view) => ({ rack: model.traces.peer ? 'peer' : 'hos
 function normalized(route) {
   const systemId = Object.hasOwn(systems, route.systemId) ? route.systemId : 'gb300';
   const m = getModel(systemId), s = m.spec;
-  const view = viewKeys.includes(route.view) ? route.view : s.defaultView;
+  const options = lessonOptions(systemId);
+  // Lessons describe a reference system, not a previously inspected physical GPU.
+  // Keep their explorer exits identical before and after bookmark restoration.
+  const learning = route.mode === 'learn';
+  const view = learning ? 'rack' : viewKeys.includes(route.view) ? route.view : s.defaultView;
   return {
     systemId, view,
-    mode: systemId === 'gb300' && route.mode === 'learn' ? 'learn' : 'explore',
+    mode: route.mode === 'learn' ? 'learn' : 'explore',
     lesson: Number.isInteger(route.lesson) ? Math.max(0, Math.min(3, route.lesson)) : 0,
-    lens: ['groups', 'network', 'storage'].includes(route.lens) ? route.lens : 'groups',
-    storyPath: ['memory', 'host', 'peer', 'remote'].includes(route.storyPath) ? route.storyPath : 'peer',
+    lens: options.lenses.includes(route.lens) ? route.lens : options.lenses[0],
+    storyPath: options.paths.includes(route.storyPath) ? route.storyPath : options.defaultPath,
     placement: route.placement === 'split' ? 'split' : 'same',
-    node: Math.max(1, Math.min(s.nodes, Number.isInteger(route.node) ? route.node : 1)),
-    gpu: Math.max(0, Math.min(s.gpusPerNode - 1, Number.isInteger(route.gpu) ? route.gpu : 0)),
+    node: learning ? 1 : Math.max(1, Math.min(s.nodes, Number.isInteger(route.node) ? route.node : 1)),
+    gpu: learning ? 0 : Math.max(0, Math.min(s.gpusPerNode - 1, Number.isInteger(route.gpu) ? route.gpu : 0)),
     selected: Object.hasOwn(m.components, route.selected) ? route.selected : m.views[view].selected,
     trace: Object.hasOwn(m.traces, route.trace) ? route.trace : defaultTrace(m, view)
   };
@@ -42,15 +46,16 @@ function render() {
   const learning = state.mode === 'learn';
   document.body.classList.toggle('learning', learning);
   $('#learning-page').hidden = !learning;
-  $('#experience-toggle').hidden = s.id !== 'gb300';
+  $('#experience-toggle').hidden = false;
+  $('#learning-page').setAttribute('aria-label', `${s.name} architecture lesson`);
   $('#experience-toggle').textContent = learning ? 'Open architecture explorer →' : 'Start the visual lesson →';
   $('#nav-label').textContent = learning ? 'UNDERSTAND THIS SYSTEM' : 'EXPLORE THE ARCHITECTURE';
   $('#scale-nav').setAttribute('aria-label', learning ? 'Architecture lesson' : 'Architecture scale');
-  $('.brand').href = learning ? '#gb300/learn?step=0' : '#rack';
+  $('.brand').href = learning ? `#${s.id}/learn?step=0` : `#${s.id}/rack`;
   if (learning) { $('.brand').dataset.lesson = '0'; delete $('.brand').dataset.view; }
   else { $('.brand').dataset.view = 'rack'; delete $('.brand').dataset.lesson; }
   if (learning) {
-    $('#scale-nav').innerHTML = lessonSteps.map(([title, sub], i) => `<button id="lesson-nav-${i}" class="scale-item ${state.lesson === i ? 'active' : ''}" data-lesson="${i}" ${state.lesson === i ? 'aria-current="step"' : ''}><span class="scale-number">0${i + 1}</span><span><strong>${title}</strong><small>${sub}</small></span></button>`).join('');
+    $('#scale-nav').innerHTML = lessonSteps(s.id).map(([title, sub], i) => `<button id="lesson-nav-${i}" class="scale-item ${state.lesson === i ? 'active' : ''}" data-lesson="${i}" ${state.lesson === i ? 'aria-current="step"' : ''}><span class="scale-number">0${i + 1}</span><span><strong>${esc(title)}</strong><small>${esc(sub)}</small></span></button>`).join('');
     $('#learning-page').innerHTML = learningPage(state);
     $('#tour').hidden = true;
     if (focusId) document.getElementById(focusId)?.focus({preventScroll:true});
@@ -186,6 +191,8 @@ function openDialog(kind) {
   if (kind === 'sources') {
     $('#dialog-title').textContent = `Sources · ${s.name}`;
     $('#dialog-body').innerHTML = `<p>Primary references for the selected configuration. Checked November 1, 2026. Document differences are recorded in the specification notes.</p><div class="source-list">${s.sources.map((key, i) => { const ref = sources[key]; return `<article><span class="source-number">${String(i + 1).padStart(2,'0')}</span><div><a href="${ref.url}" target="_blank" rel="noopener noreferrer">${esc(ref.title)} ↗</a><small>${esc(ref.publisher)}</small><p>${esc(ref.supports)}</p></div></article>`; }).join('')}</div><button class="text-button" data-dialog="notes">Read configuration and bandwidth notes →</button>`;
+    const refs = lessonReferences(s.id);
+    if (refs.length) $('#dialog-body').innerHTML += `<h3>Visual lesson references · checked November 2, 2026</h3><div class="source-list">${refs.map((ref,i)=>`<article><span class="source-number">${i+1}</span><div><a href="${esc(ref.url)}" target="_blank" rel="noopener noreferrer">${esc(ref.title)} ↗</a><small>NVIDIA · lesson evidence</small><p>${esc(ref.supports)}</p></div></article>`).join('')}</div>`;
   } else if (kind === 'scope') {
     $('#dialog-title').textContent = 'Architecture guide';
     $('#dialog-body').innerHTML = `<p>Ten reference configurations across the agreed families. Select a system to explore its actual CPU, GPU, memory and network arrangement.</p><div class="coverage-list">${Object.values(systems).map(ref => `<button data-system="${ref.id}"><strong>${esc(ref.name)}</strong><span>${esc(ref.family)} · ${isRack(ref) ? `${gpuCount(ref)}-GPU rack domain` : `${ref.gpusPerNode} GPU${ref.gpusPerNode > 1 ? 's' : ''} / system`}</span></button>`).join('')}</div><p>These are selected reference configurations, not an enumeration of every OEM, PCIe, SXM, NVL or memory-capacity variant.</p>`;
@@ -200,7 +207,7 @@ function selectSystem(id) {
   if (!Object.hasOwn(systems, id)) return;
   const m = getModel(id), view = m.spec.defaultView;
   if ($('#info-dialog').open) $('#info-dialog').close();
-  navigate({systemId:id, mode:id === 'gb300' ? 'learn' : 'explore', lesson:0, lens:'groups', storyPath:'peer', placement:'same', view, node:1, gpu:0, selected:m.views[view].selected, trace:defaultTrace(m,view)});
+  navigate({systemId:id, mode:'learn', lesson:0, lens:'groups', storyPath:lessonOptions(id).defaultPath, placement:'same', view, node:1, gpu:0, selected:m.views[view].selected, trace:defaultTrace(m,view)});
   $('#system-picker').focus({preventScroll:true});
   window.scrollTo({top:0, behavior:'instant'});
 }

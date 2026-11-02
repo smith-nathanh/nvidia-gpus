@@ -132,11 +132,13 @@ export function getModel(id) {
     traces.remote.rateLabel = ['Selected connection · each direction', 'Selected connection · send + receive'];
   }
   if (s.id === 'station') {
+    traces.host.note = '900 GB/s is the C2C send-plus-receive interface budget. The 396 GB/s CPU LPDDR5X interface can constrain GPU reads from host memory; the C2C peak is not end-to-end throughput.';
     components.nic.facts.push(['External ports', '2 × 400 Gb/s'], ['One-port byte-rate ceiling', '50 GB/s each direction']);
     components.nic.insight = '800 Gb/s is an adapter aggregate. One 400 Gb/s port has a 50 GB/s byte-rate ceiling each direction before protocol overhead.';
     components.network.facts[1] = ['Adapter aggregate ceiling', '800 Gb/s across 2 × 400 Gb/s ports'];
     traces.remote.rateLabel = ['Adapter aggregate · each direction', 'Adapter aggregate · send + receive'];
   }
+  if (s.id === 'gh200') traces.host.note = '900 GB/s is the paired CPU–GPU C2C send-plus-receive interface budget. A GPU read from Grace memory can also be limited by the host-memory interface, contention and access pattern.';
   // Retain the pilot's detailed explanations and source distinctions.
   if (s.id === 'gb300') {
     Object.assign(components, pilotComponents);

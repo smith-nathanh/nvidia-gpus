@@ -23,6 +23,7 @@ The user understands GPUs and LLMs already. The learning gap is how servers, rac
 - The user clarified the learning context: preparing to work with real-world distributed LLM training on GPU clusters, building on experience with a CPU-only Slurm cluster. Suggestions for training workflows and job-to-hardware mapping are educational priorities for discussion, not approval to implement every proposed feature.
 - On November 2, 2026, the user asked for a layout/learning-experience review and a **one-system redesign on a new branch**, with greater use of NVIDIA diagrams. They felt the existing page presented many facts without building understanding. They authorized stopping the local server during this work. The GB300 visual lesson and eight-rank placement exercise were implementation choices for that prototype.
 - The user then approved the GB300 redesign ("Nice I like this") and explicitly requested pushing it and redesigning **all nine remaining reference architectures** to the same quality. They authorized using Astra subagents for substantial portions and emphasized durable context across compactions. Preserve architecture-specific topology, real NVIDIA diagrams, a clear teaching sequence, and meaningful interactions. This authorizes the lesson expansion, not new hardware variants or hosted deployment.
+- When told the repository had no remote, the user explicitly requested creating a **private GitHub repository** with the installed GitHub CLI. The destination is now [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus).
 - Another agent will pick up and refine the initial pilot. Provide enough persistent context that the new agent does not need this chat.
 
 ## Agreed architecture families
@@ -69,4 +70,4 @@ The refinement replaces shrinking SVGs with responsive HTML/CSS logical maps so 
 - Whether later versions should add arbitrary endpoint path tracing, workload examples, or performance estimation. The pilot uses fixed illustrative paths and published peak figures.
 - How much detailed chip microarchitecture to expose beyond the package/memory view.
 
-The user requested pushing the approved redesign. No Git remote is configured yet; the destination has been requested. No hosted deployment, accounts, telemetry, or recurring automation was requested. The app itself remains local.
+The approved GB300 redesign is checkpointed on the private repository’s `main` and `codex/gb300-learning-redesign` branches. The nine-system lesson expansion uses `codex/all-architecture-lessons`. No hosted deployment, new user accounts, telemetry, or recurring automation was requested. The app itself remains local.

@@ -2,11 +2,30 @@
 
 Updated November 2, 2026. Read [the project goals](docs/PROJECT_GOALS.md) first for user decisions and scope. This file records implementation choices and current status.
 
-## GB300 learning redesign prototype · November 2
+## All ten visual lessons · November 2
 
-The user asked for one redesigned system on a branch, explaining that the old layout felt like a collection of facts without producing understanding. The current branch is `codex/gb300-learning-redesign`. Existing uncommitted expansion/review work was preserved; no baseline commit or remote was created.
+The user approved the GB300 visual redesign, requested the same caliber for all nine other references, and authorized creating a private GitHub repository. The approved checkpoint is `55300b3`, pushed to `main` and `codex/gb300-learning-redesign` at [smith-nathanh/nvidia-gpus](https://github.com/smith-nathanh/nvidia-gpus). The completed expansion is on `codex/all-architecture-lessons`; `main` retains the approved checkpoint for comparison. Check Git for the current expansion commit/push state.
 
-GB300 now defaults to a four-part visual lesson at [the learning route](http://127.0.0.1:4173/#gb300/learn?step=0). The opening idea distinguishes **18 server/OS boundaries from one 72-GPU NVLink domain**. The other systems retain their existing explorer. Complete old explorer bookmarks continue to open their original view, and the GB300 sidebar switches between lesson and detailed explorer.
+**Every system now opens a four-part lesson.** Each starts with the boundary the reader needs to understand, guides them through actual NVIDIA material, distinguishes data paths, then changes a concrete workload example. All forty detailed explorer maps remain available through the sidebar and existing bookmarks. Lesson URLs preserve step, figure highlight, destination and scenario; entering a lesson consistently resets physical explorer identity to node 1 / GPU 0, including after reload.
+
+The lessons preserve different architectures:
+
+- **H100, H200, B200 and B300:** one eight-GPU server is one NVLink domain. An eight-rank job can fill one server or allocate four GPUs in each of two physical eight-GPU servers; unused GPUs stay visible. NVIDIA’s wiring separates peer fabric, host PCIe, compute NICs and storage.
+- **GB200 and Rubin:** two four-GPU compute nodes can share a rack fabric or communicate across separate rack domains. GB200’s C2C/CPU-I/O-to-PCIe NIC path is distinct from the GB300 pilot. Rubin uses its actual physical tray/composition figures while preserving current product rates and omitting unverified switch counts.
+- **GH200 and Station:** one CPU and one primary GPU coherently access two distinct physical memory tiers. A fixed example buffer changes location, not size. Station’s optional RTX GPU is outside this reference.
+- **Spark:** CPU and GPU share one physical LPDDR5X pool. Increasing the example GPU allocation reduces the capacity left for CPU work and other software. The lesson explains the CPU/GPU tiles using the official GB10 whitepaper.
+
+Three Astra agents authored bounded content groups and cross-reviewed each other’s work against primary sources. Root integrated the shared renderer, inspected the visual results and completed browser QA. Source records: [servers](docs/research/servers.md), [racks](docs/research/racks.md), [coherent systems](docs/research/coherent.md). [The expansion record](docs/LEARNING_REDESIGN_PLAN.md) contains the content contract, review outcomes and verification ledger.
+
+Ten additional local NVIDIA figures support the expansion; the original three remain. Visible captions and source dialogs preserve caveats: the older GH200 image teaches addressing rather than the selected HBM3e SKU; Station uses an explicitly architecture-level GPU image; Rubin’s January figure contains earlier rates; B300 publications still disagree on memory. B200’s original topology image has limited resolution. No hardware rates were changed during the lesson expansion; GH200/Station host-path wording now makes the difference between C2C peak and memory-read throughput explicit.
+
+Integrated validation covers all forty lesson screens at 1440 and 390 px, all forty detailed maps at 390 px, 87 keyboard-operated lesson choices, loaded/enlarged source figures, history and bookmark restoration. No whole-page overflow, missing values, undersized visible buttons or focus regressions were found in these checks. Automated invariants cover topology, rank counts, memory arithmetic, all lesson variants, assets and route round-trips. These checks do not establish achieved hardware performance. Screenshots: `artifacts/h200-learning-overview.jpg`, `artifacts/b300-training-placement.jpg`, `artifacts/spark-learning-budget.jpg`, and `artifacts/gb200-learning-diagram.jpg`.
+
+## Approved GB300 prototype history · November 2
+
+The user asked for one redesigned system on a branch, explaining that the old layout felt like a collection of facts without producing understanding. The pilot used `codex/gb300-learning-redesign` and preserved the existing expansion/review work. That complete approved baseline was subsequently committed as `55300b3` and pushed before the lesson expansion.
+
+GB300 defaults to a four-part visual lesson at [the learning route](http://127.0.0.1:4173/#gb300/learn?step=0). The opening idea distinguishes **18 server/OS boundaries from one 72-GPU NVLink domain**. At this checkpoint the other systems retained their existing explorer; the expansion above adds their lessons. Complete old explorer bookmarks continue to open their original view, and the sidebar switches between lesson and detailed explorer.
 
 The design assessment: the original interface gave counts, scale navigation, component inspection, trace controls, and specification notes similar visual weight. It expected the reader to assemble the hierarchy themselves. This prototype gives each screen one explanatory question, a primary visual, a takeaway, and an explicit next step:
 
@@ -19,13 +38,13 @@ New files: `dist/learning.js` (lesson content/diagrams), `dist/learning.css` (sc
 
 NVIDIA sources were rechecked November 2. Asset provenance is in `dist/assets/nvidia/README.md`. The scheduling reference discusses GB200 and explicitly gives four GPUs per node for both GB200 and GB300; only the shared placement principle is used. Existing memory/SKU caveats remain in the model notes; none of the other hardware models were revised.
 
-Verification: `npm run check` passes, including existing ten-model/forty-map checks and new lesson route/rank/asset invariants. Browser checks covered all four lessons at 390 px, the 586 px app panel, and desktop at 1440 px; no whole-page horizontal overflow was found. The wide NVIDIA tray diagram deliberately scrolls within its own frame on narrow screens. All four destination choices, three diagram highlights, eight-rank placements, reload/Back/Forward restoration, image expansion/Escape, and all ten system selections were exercised. No console warnings/errors were observed. These checks validate the UI and model consistency, not achieved hardware performance. The user approved this prototype and requested the same quality of redesign for all nine remaining architectures. The approved state is being checkpointed before expansion. Screenshot: `artifacts/gb300-learning-overview.jpg`. The local server was restarted on port 4173 to load the image MIME types.
+Verification: `npm run check` passes, including existing ten-model/forty-map checks and new lesson route/rank/asset invariants. Browser checks covered all four lessons at 390 px, the 586 px app panel, and desktop at 1440 px; no whole-page horizontal overflow was found. The wide NVIDIA tray diagram deliberately scrolls within its own frame on narrow screens. All four destination choices, three diagram highlights, eight-rank placements, reload/Back/Forward restoration, image expansion/Escape, and all ten system selections were exercised. No console warnings/errors were observed. These checks validate the UI and model consistency, not achieved hardware performance. The user approved this prototype and requested the same quality of redesign for all nine remaining architectures. The approved state was checkpointed as `55300b3` before expansion. Screenshot: `artifacts/gb300-learning-overview.jpg`. The local server was restarted on port 4173 to load the image MIME types.
 
 ## Latest authorization and status
 
 The user asked for an architecture/code/UI review of the GB300 pilot, authorized the fixes and family expansion, then requested subagent reviews of all architectures. Three reviewers covered all ten references and rechecked targeted corrections. See [the architecture review](docs/ARCHITECTURE_REVIEW.md) for findings, source evidence and resolution status. The user has not separately approved every variant choice or visual detail.
 
-The target remains a local app. The user has now requested a Git push; no remote is configured, and the destination is pending. No hosted deployment, accounts, telemetry or automation was requested.
+The target remains a local app. The user requested a Git push and creation of a private repository; the remote is now configured. No hosted deployment, new user accounts, telemetry or automation was requested.
 
 ## Run and check
 
@@ -87,9 +106,15 @@ These are selected configurations, not all SKUs. GH200 NVL2/DGX GH200, NVL4, PCI
 | `dist/diagrams.js` | Responsive logical maps for all configurations and four scales; native buttons |
 | `dist/navigation.js` | Complete hash-route serialization/parsing and legacy route compatibility |
 | `dist/app.js` | State normalization, rendering, navigation/history, focus, tours, dialogs, zoom and events |
+| `dist/learning.js` | Shared lesson renderer, topology-specific visuals, experiments, figure registry and source dialogs |
+| `dist/lessons/gb300.js` | Approved GB300 lesson preserved from the pilot |
+| `dist/lessons/{servers,racks,coherent}.js` | Nine architecture-specific lesson narratives, guided figures, paths and workload examples |
+| `dist/learning.css` | Visual lesson layouts, teaching figures, responsive diagrams and examples |
+| `dist/assets/nvidia/` | Attributed local NVIDIA figures and provenance records |
 | `dist/style.css` | Readable light/green schematic design, semantic component colors, container queries, responsive shell |
 | `scripts/check-data.mjs` | Original pilot architecture/unit/source invariants |
 | `scripts/check-models.mjs` | Ten reference fixtures, all forty map outputs, component/source/action targets, CPU-link presence, GPU inventory, route identity and memory conventions |
+| `scripts/check-learning.mjs` | Forty lessons and their variants, sources/assets/highlights, routes, rank inventories and memory examples |
 | `server.mjs` | Dependency-free local static server with path containment |
 
 Sources are embedded and the app does not fetch external content on startup. Internet is needed only to follow source links. All configuration facts must retain primary-source evidence.
@@ -110,7 +135,7 @@ Sources are embedded and the app does not fetch external content on startup. Int
 - Rubin: current product table gives 19.2 TB/s HBM and 3 TB/s NVLink per GPU. The January architecture article gives earlier 22 TB/s and 3.6 TB/s values. The map uses current product rates and records the difference. Its ConnectX-9 1.6 Tb/s endpoint figure has a different scope from the product table’s networking aggregate.
 - Spark: shared LPDDR5X capacity and bandwidth are a single system budget. CPU/GPU tiles communicate coherently over C2C; its numerical rate is unspecified. Two external 200 Gb/s ports share SoC-facing I/O. The selected 200 Gb/s example is not labeled a full-adapter aggregate, and no 400 Gb/s host throughput is inferred.
 - Station: the Desktop Superchip is 1 CPU + 1 primary GPU, whereas the NVL72 superchip is 1 CPU + 2 GPUs. Optional RTX PRO is excluded explicitly.
-- Source date: November 1, 2026. Availability and specs should be rechecked when changing the model. In particular, Rubin is marked available based on the checked product page, not inferred from older launch schedules.
+- Model source date: November 1, 2026; lesson sources rechecked November 2, 2026. Availability and specs should be rechecked when changing the model. In particular, Rubin is marked available based on the checked product page, not inferred from older launch schedules.
 
 ## Verification and remaining review
 
@@ -132,10 +157,10 @@ Current screenshots: `artifacts/gb300-refined-desktop.jpg` and `artifacts/spark-
 
 The subsequent subagent review corrected rack endpoint numbering and B300 source scopes, clarified personal-system port/tile relationships, and fixed shared tour-entry focus, inspector scrolling and misleading host-path highlighting. Review-era evidence and remaining suggestions are recorded in `docs/ARCHITECTURE_REVIEW.md`; `artifacts/b300-reviewed.jpg` shows the revised B300 memory presentation.
 
-The user’s latest educational context is real-world distributed LLM training, with existing CPU-only Slurm experience. Proposed next lessons include a Slurm allocation → process/rank → GPU map, a training-step communication overlay, memory budgeting, parallelism placement, and troubleshooting/checkpoint recovery. These are suggestions for discussion, not implemented features or separately approved expansion. A two-node, eight-GPU-per-node server example is a suggested starting exercise; preserve NVL72’s different node and fabric boundaries if adapting it.
+The user’s educational context is real-world distributed LLM training, with existing CPU-only Slurm experience. The visual lessons now implement fixed rank-placement and memory-budget/locality examples. A full Slurm launch workflow, training-step communication overlay, arbitrary parallelism planner, troubleshooting and checkpoint recovery remain suggestions for discussion, not implemented features or separately approved expansion.
 
 Further useful work: have the user assess the broader learning experience, refine explanation depth and long-map navigation based on their feedback, then consider additional exact SKU variants and a real comparison interface. Do not silently add hosted deployment, benchmark predictions or unsupported port-level detail.
 
 ## Git
 
-This remains a local repository. Inspect `git status` and `git log` for the actual state. No commit, remote or publication is implied by the implementation work.
+Private remote: `git@github.com:smith-nathanh/nvidia-gpus.git`. Default branch `main` and `codex/gb300-learning-redesign` hold approved checkpoint `55300b3`. Expansion branch: `codex/all-architecture-lessons`. Inspect `git status`, `git log` and remote tracking for its latest commit and push state. GitHub repository visibility was explicitly verified private. The app is still served locally; no hosted site was deployed.

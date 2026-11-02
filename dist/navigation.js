@@ -6,8 +6,8 @@ export function readRoute(hash) {
   const legacy = viewKeys.includes(parts[0]);
   const params = new URLSearchParams(query);
   const integer = (key, fallback) => /^\d+$/.test(params.get(key) || '') ? Number(params.get(key)) : fallback;
-  if (parts[0] === 'gb300' && parts[1] === 'learn') return {
-    systemId: 'gb300', view: 'rack', mode: 'learn', lesson: Math.min(3, integer('step', 0)),
+  if (parts[1] === 'learn') return {
+    systemId: parts[0], view: 'rack', mode: 'learn', lesson: Math.min(3, integer('step', 0)),
     storyPath: params.get('transfer') || 'peer', placement: params.get('placement') || 'same',
     lens: params.get('lens') || 'groups', node: 1, gpu: 0
   };
@@ -19,12 +19,12 @@ export function readRoute(hash) {
   };
 }
 export function writeRoute(state) {
-  if (state.systemId === 'gb300' && state.mode === 'learn') {
+  if (state.mode === 'learn') {
     const params = new URLSearchParams({ step: state.lesson || 0 });
     if (state.storyPath && state.storyPath !== 'peer') params.set('transfer', state.storyPath);
     if (state.placement && state.placement !== 'same') params.set('placement', state.placement);
     if (state.lens && state.lens !== 'groups') params.set('lens', state.lens);
-    return `#gb300/learn?${params}`;
+    return `#${state.systemId}/learn?${params}`;
   }
   const params = new URLSearchParams({ node: state.node, gpu: state.gpu });
   if (state.selected) params.set('component', state.selected);

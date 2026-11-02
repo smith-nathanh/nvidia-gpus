@@ -18,7 +18,11 @@ Open [the local app](http://127.0.0.1:4173/). Use `PORT=4174 npm start` for anot
 
 ## Explore
 
-Choose a reference system, then move between system/rack context, a compute node, a GPU and its memory, and connections between systems. Click a component for explanations, scoped facts and primary sources. Arrow-marked cards drill down.
+Choose a reference system to start its four-part visual lesson: establish the system boundary, read a real NVIDIA diagram with guided highlights, follow data through different paths, then change a workload example and see the consequence.
+
+The examples follow the hardware: place eight training ranks within or across server/rack GPU domains, move a buffer between GH200 or Station’s distinct physical memories, or budget CPU and GPU allocations against Spark’s shared pool. These are teaching examples, not benchmark predictions or launch recipes. Figures are available locally, attributed, and linked to their primary sources; captions explain configuration differences.
+
+Use **Open architecture explorer** for the detailed component maps. Move between system/rack context, a compute node, a GPU and its memory, and connections between systems. Click a component for explanations, scoped facts and primary sources. Arrow-marked cards drill down.
 
 Rack-scale systems expose numbered compute nodes. GPU drill-down retains the node, superchip and GPU identity. Full hash bookmarks and browser Back/Forward preserve that context. Legacy pilot links still work.
 
@@ -40,4 +44,4 @@ No external scripts, fonts, APIs or accounts are needed to run the app. Source l
 npm run check
 ```
 
-Checks syntax, ten reference fixtures, all forty map outputs, source/action references, host links, GPU inventories, route identity and bandwidth conventions. Browser checks remain necessary for layout, focus, history and interaction behavior.
+Checks syntax, ten reference fixtures, forty map outputs and forty lesson screens, source/action references, local figures, highlight bounds, GPU/rank inventories, scenario arithmetic, route identity and bandwidth conventions. Browser checks remain necessary for layout, focus, history and interaction behavior. [The learning redesign record](docs/LEARNING_REDESIGN_PLAN.md) records implementation, independent content reviews and final QA.
