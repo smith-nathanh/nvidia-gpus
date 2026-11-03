@@ -1,13 +1,6 @@
-# GB200 / Vera Rubin lesson expansion
+# GB200 and Vera Rubin source notes
 
-Updated November 2, 2026. Owner: rack lesson subagent. Scope: `dist/lessons/racks.js`, `dist/assets/nvidia/racks/`, this file only. Shared renderer/state/tests/browser QA belong to root. No commit.
-
-## Progress
-
-- Read AGENTS, goals, handoff, learning contract, approved GB300 lesson/CSS and current model constraints.
-- Rechecked NVIDIA GB200 hardware, networking, SuperPOD, product and architecture pages; Rubin product and January architecture article; NVIDIA Slurm scheduling and NCCL collective references.
-- Downloaded and visually inspected unmodified local GB200 tray and four-rack front diagram, Rubin tray and superchip. Asset provenance follows below. Completed architecture-specific four-step lessons for both systems in `dist/lessons/racks.js`.
-- No contract change proposed. GB200 figure includes NVLink fanout (unlike pilot); Rubin physical figure cannot support port-wiring assertions.
+Sources checked November 2, 2026.
 
 ## Primary evidence
 
@@ -38,22 +31,12 @@ All © NVIDIA, unmodified originals downloaded November 2, 2026. App overlays ar
 - Rack placement fixed at 8 ranks, two full four-GPU trays. Same vs split rack changes GPU peer traffic tier; external compute network is a parallel GPU/NIC path, not an NVSwitch output.
 - Rubin tray article supports physical composition, not a verified detailed OS/scheduler launch recipe. Avoid claiming its source proves a particular Slurm configuration.
 - Exact per-link allocations, lane routing, NIC board counts for Rubin, switch counts and achieved performance are not inferred.
-- Browser QA pending root. This agent does not use browser UI. Root notified that the Rubin source-difference note must appear next to the guided figure, not only in the enlargement dialog.
+- Keep the Rubin source-difference note next to the guided figure as well as in the enlargement dialog.
 
 
-## Implementation and local validation completed
+## Figure scope
 
-- `dist/lessons/racks.js` exports `lessons.gb200`, `lessons.rubin`, and four globally unique figures; no renderer/shared file changes and no commit.
-- Each system has four narrative screens, three measured figure hotspots, four tensor destinations, and two states for an eight-rank/two-tray rack placement experiment. Rates remain in canonical models.
-- GB200 remote path identifies C2C/host I/O to PCIe-attached CX7; CPU I/O participation does not imply CPU RAM staging. GB200 selected DGX compute fabric is InfiniBand.
-- Rubin current product numbers remain the app's chosen scope. The original physical tray caption flags the older 14.4 TB/s tray NVLink figure. Current product also allows InfiniBand; article's Spectrum-X depiction is not presented as the only deployment choice.
-- `node --check dist/lessons/racks.js` passed. A module validation checked four steps/titles/intros, four paths, all fixed lens keys, existing referenced assets, all hotspot rectangles inside 0–100%, no copied rate/scope fields, and rack-placement kind.
-- All four local originals opened with image viewer. PNG signatures/dimensions checked: GB200 rack 2122×1458, GB200 tray 1579×1117, Rubin superchip 1232×726, Rubin tray 1630×780.
-- Root owns `npm start`, final `npm run check` integration, browser reload, layout/interaction QA and shared renderer corrections.
-
-## Scope decisions for future refinements
-
-Rubin overview uses its actual superchip composition diagram beside the logical rack instead of importing the January NVLink switch-count diagram. This preserves the current model's deliberate omission of exact switch counts. The physical tray illustration supports locating hardware but cannot justify specific lanes, port fanout, or a CPU-to-NIC per-branch bandwidth allocation. No user decision is inferred from this presentation choice.
+Rubin overview uses its actual superchip composition diagram beside the logical rack instead of importing the January NVLink switch-count diagram. This preserves the current model's deliberate omission of exact switch counts. The physical tray illustration supports locating hardware but cannot justify specific lanes, port fanout, or a CPU-to-NIC per-branch bandwidth allocation.
 
 
 Asset SHA-256 (downloaded originals):

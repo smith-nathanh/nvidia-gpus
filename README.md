@@ -1,47 +1,60 @@
 # NVIDIA Systems Explorer
 
-A local, source-backed interactive guide to NVIDIA system architecture: memory → CPU/GPU grouping → server → rack/domain → external network.
+An interactive guide to how NVIDIA GPUs, memory, servers and racks connect. Runs locally in your browser; no GPU required.
 
-Ten reference configurations are included: **DGX H100, DGX H200, GH200, DGX B200, GB200 NVL72, DGX B300, GB300 NVL72, Vera Rubin NVL72, DGX Spark, and DGX Station.**
+![NVIDIA Systems Explorer showing the system selector, GB300 lesson navigation, compute nodes connected through NVLink, and NVIDIA's physical rack diagram.](docs/images/overview.jpg)
 
-Read [the project goals](docs/PROJECT_GOALS.md), then [the implementation handoff](HANDOFF.md) for scope, source conventions and verification details. [The architecture review](docs/ARCHITECTURE_REVIEW.md) records the independent reviews of all ten references and their corrections. [AGENTS.md](AGENTS.md) records repository working instructions.
+*The GB300 NVL72 overview: compute nodes, the shared GPU fabric, and the physical rack.*
 
 ## Run
 
-Requires Node.js 18+. No dependencies to install and no build step.
+Requires Node.js 18+. No dependencies to install or build step.
 
 ```sh
+git clone https://github.com/smith-nathanh/nvidia-gpus.git
+cd nvidia-gpus
 npm start
 ```
 
-Open [the local app](http://127.0.0.1:4173/). Use `PORT=4174 npm start` for another port. Reload after edits: there is no hot reload. **`dist/` is editable source**, not generated output.
+Open [localhost:4173](http://127.0.0.1:4173/). Use `PORT=4174 npm start` for another port.
 
-## Explore
+## What's inside
 
-Choose a reference system to start its four-part visual lesson: establish the system boundary, read a real NVIDIA diagram with guided highlights, follow data through different paths, then change a workload example and see the consequence.
+Each system has a four-part lesson: the big picture, an annotated NVIDIA diagram, data paths, and a small workload example. Change a job's placement or a buffer's memory location to see what changes in the hardware path.
 
-The examples follow the hardware: place eight training ranks within or across server/rack GPU domains, move a buffer between GH200 or Station’s distinct physical memories, or budget CPU and GPU allocations against Spark’s shared pool. These are teaching examples, not benchmark predictions or launch recipes. Figures are available locally, attributed, and linked to their primary sources; captions explain configuration differences.
+The detailed explorer lets you move from rack or system to node to GPU, inspect components, and follow their sources. Views can be bookmarked, and the controls work with a keyboard.
 
-Use **Open architecture explorer** for the detailed component maps. Move between system/rack context, a compute node, a GPU and its memory, and connections between systems. Click a component for explanations, scoped facts and primary sources. Arrow-marked cards drill down.
+| Reference type | Systems |
+| --- | --- |
+| Eight-GPU servers | DGX H100, H200, B200 and B300 |
+| Rack-scale systems | GB200 NVL72, GB300 NVL72 and Vera Rubin NVL72 |
+| Single-superchip and personal systems | GH200 HBM3e, DGX Spark and DGX Station |
 
-Rack-scale systems expose numbered compute nodes. GPU drill-down retains the node, superchip and GPU identity. Full hash bookmarks and browser Back/Forward preserve that context. Legacy pilot links still work.
+<details>
+<summary>More views and an interactive example</summary>
 
-Each system has a guided tour and relevant communication examples. Single-GPU configurations omit the local peer-GPU example. Use One direction / Send + receive to inspect interface conventions; local HBM and shared-memory bandwidth retain their published value. Component maps reflow in narrow panels and can be zoomed.
+**Reading a compute-tray diagram**
 
-Keyboard: Tab to native controls; Enter/Space to activate; arrow keys/Home/End switch data-path tabs; Escape closes dialogs.
+![GB200 lesson with guided highlights over NVIDIA's compute-tray wiring diagram.](docs/images/tray.jpg)
 
-## Reference conventions
+**Changing a job's placement**
 
-These are selected configurations, not every variant. The model distinguishes x86 GPU servers, Grace/Vera rack systems, a single GH200 HBM3e superchip, Spark’s shared physical LPDDR5X, and Station’s one-GPU Desktop Superchip. CPU-to-CPU, CPU-to-GPU, local-memory, peer-GPU and scale-out connections have different roles.
+![GB300 placement example: the same eight GPUs share one rack's NVLink fabric, then communicate across two racks through the compute network.](docs/images/placement.gif)
 
-Primary links and source disagreements are available per system. Examples include B300 hardware-guide versus product-page memory totals and Rubin’s current product rates versus earlier architecture figures. Published peaks are not measured performance, and logical maps are not exact port/cabling plans.
+</details>
 
-No external scripts, fonts, APIs or accounts are needed to run the app. Source links require internet access.
+## Sources and scope
 
-## Check
+These are selected reference configurations, not every SKU. The app links to primary sources and calls out differences between publications. Diagrams show architectural relationships; workload examples illustrate placement and memory budgets, not measured performance.
+
+NVIDIA figures retain their attribution and [provenance](dist/assets/nvidia/README.md). Supporting [source notes](docs/research/) are included. The app loads locally without external APIs or accounts; following source links needs internet access.
+
+## Development
+
+`dist/` is hand-authored source. Edit it directly and reload the browser; there is no hot reload.
 
 ```sh
 npm run check
 ```
 
-Checks syntax, ten reference fixtures, forty map outputs and forty lesson screens, source/action references, local figures, highlight bounds, GPU/rank inventories, scenario arithmetic, route identity and bandwidth conventions. Browser checks remain necessary for layout, focus, history and interaction behavior. [The learning redesign record](docs/LEARNING_REDESIGN_PLAN.md) records implementation, independent content reviews and final QA.
+Checks cover the hardware models, lessons, diagrams, local assets and navigation. Use the browser to check layout and interactions after UI changes.

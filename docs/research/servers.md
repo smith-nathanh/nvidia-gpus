@@ -1,12 +1,6 @@
-# Eight-GPU DGX learning lessons — research and implementation
+# Eight-GPU DGX source notes
 
-Checked November 2, 2026. Assigned owner: server lessons subagent. Owned files: `dist/lessons/servers.js`, `dist/assets/nvidia/servers/`, and this file. Shared integration/browser QA belongs to the root agent.
-
-## Status
-
-- Read AGENTS, goals, handoff, expansion plan, pilot lesson/CSS and models.
-- Downloaded and visually inspected all three official topology originals. H100 and H200 intentionally share the single figure explicitly published for both systems.
-- Implemented four screens for each model to the agreed data contract in `dist/lessons/servers.js`. No model specification changes or shared-file edits. The file exports four lessons and three figure records.
+Sources checked November 2, 2026.
 
 ## Primary topology evidence and asset provenance
 
@@ -47,10 +41,4 @@ H100 and B300 PNGs are transparent; display on white for readable black labels. 
 - Rates remain sourced from model traces in shared renderer. No bandwidth/performance estimates in new content.
 - Placement holds eight ranks/GPUs fixed: 8 in one physical server vs 4 in each of two physical 8-GPU servers. Four GPUs in each split server are unallocated in the example, not absent or disabled. Server crossing uses network even if chassis share a rack. Allocation exclusivity and launcher binding depend on cluster policy.
 
-## Verification and remaining work
-
-Module syntax passed (`node --check dist/lessons/servers.js`). A read-only Node contract audit passed for four step/title/intro entries per model; referenced figures and files; all three lens keys and bounded percentage zones; all four paths, source URLs and route-stop kinds; two bridges per experiment; and server-placement kinds.
-
-`npm run check` also passed at this checkpoint; the shared suite was still the existing pilot/model suite, so this does not claim integrated coverage of all new lesson pages yet.
-
-Root owns final integrated checks and browser QA. In particular, check white image backgrounds, figure sizing, highlights, 8 active ranks in both placements, 4 visibly unallocated GPUs per split server, and neutral overview-equation separators (server summary counts are not a multiplication expression). B200 source resolution is limited; enlarge does not add detail. Source conflict for B300 remains intentionally unresolved. No remote or commit changes.
+B200’s topology image has limited native resolution; enlargement cannot add detail. The B300 source conflict remains unresolved.

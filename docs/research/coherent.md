@@ -1,12 +1,8 @@
-# Coherent-system lesson research and handoff
+# GH200, DGX Spark and DGX Station source notes
 
-Updated November 2, 2026. Owner: coherent lessons agent. Scope: `dist/lessons/coherent.js`, `dist/assets/nvidia/coherent/`, this file. Shared renderer, CSS, state, tests, goals and main handoff belong to root. No shared files edited; no commit made.
+Sources checked November 2, 2026.
 
-## Status
-
-All twelve lesson screens are authored to the agreed content contract: GH200 HBM3e, 128 GB DGX Spark, and GB300 Desktop DGX Station. All have an overview, three guided figure lenses, three data paths (no peer path), and an architecture-specific experiment. The local module passes `node --check`. Assets were visually inspected, and extracted PDF figures were compared with rendered source pages. Browser integration and QA belong to root and were not performed by this agent.
-
-### Teaching choices
+## Teaching examples
 
 - GH200: coherent access joins **two physically separate memory homes**. The experiment keeps a 100 GB illustrative GPU-read buffer constant while placing it in HBM versus Grace LPDDR5X. No automatic migration or timing is predicted.
 - Spark: CPU and GPU share **one physical 128 GB pool**. The experiment uses disjoint example allocations: 24 GB CPU work + 80/104 GB GPU work + 8 GB other = 112/136 GB total. The 8 GB is explicitly an invented allowance, not a recommended OS reserve. Totals yield 16 GB remaining or 8 GB over capacity. No out-of-memory, swap or compression behavior is predicted.
@@ -21,7 +17,7 @@ All twelve lesson screens are authored to the agreed content contract: GH200 HBM
 2. [NVIDIA Grace Hopper Superchip Architecture In-Depth](https://developer.nvidia.com/blog/nvidia-grace-hopper-superchip-architecture-in-depth/), November 10, 2022: Figure 5 shows physical CPU/GPU memory and shared address translation; C2C coherency and 450 GB/s per direction. This is an **older HBM3-era diagram**, not evidence for current HBM3e capacities. The lesson explicitly labels the version difference.
 3. Server network and I/O remain deployment-specific. The single-superchip reference has no local peer GPU and does not inherit the blog's larger NVLink-network examples.
 
-The old Figure 2 overview was downloaded and inspected, then rejected: its 96 GB HBM3 / 512 GB LPDDR annotations and 256-GPU network would distract from this selected reference. Its unused local copy was removed. Figure 5 provides a cleaner teaching figure with no obsolete capacity numbers or external GPU domain.
+Figure 5 illustrates address translation without the older Figure 2’s HBM3 capacities or external GPU domain.
 
 ### DGX Spark
 
@@ -51,7 +47,7 @@ All visual material is © NVIDIA. Local image content is unchanged; guided highl
 | `coherent/spark-topology.png` | [GB10 PDF](https://www.nvidia.com/content/dam/en-zz/Solutions/dgx-spark/nvidia-gb10-superchip-whitepaper.pdf#page=9) | 1564 × 998; Figure 4; PDF page 9 image object 25 |
 | `blackwell-ultra.webp` (existing shared asset, not modified) | [Original WebP](https://developer-blogs.nvidia.com/wp-content/uploads/2025/08/NVIDIA-Blackwell-Ultra-GPU-chip-png.webp) | 2182 × 1420; Blackwell Ultra blog Figure 1; existing GB300 asset reused by `station-ultra` key |
 
-Extraction: `pdfimages -f 8 -l 10 -png /tmp/coherent-research/gb10.pdf /tmp/coherent-research/gb10`; resulting `gb10-000.png` and `gb10-001.png` copied to `spark-tiles.png` and `spark-topology.png`. Source pages rendered using `pdftoppm -f 8 -l 9 -r 85 -png` and inspected. Figure pixels and their page captions match. Temporary downloaded documents remain in `/tmp/coherent-research/`, outside deliverables.
+Extraction: `pdfimages -f 8 -l 10 -png /tmp/coherent-research/gb10.pdf /tmp/coherent-research/gb10`; resulting `gb10-000.png` and `gb10-001.png` copied to `spark-tiles.png` and `spark-topology.png`. Source pages rendered using `pdftoppm -f 8 -l 9 -r 85 -png` and inspected. Figure pixels and their page captions match.
 
 SHA-256:
 
@@ -61,13 +57,3 @@ SHA-256:
 fc5336f1d6f2d845b2cec4f358c75e6bdaa5537c80ed9704f0262ba53ff22ca1  coherent/spark-topology.png
 ac1f266cf4c669dbaa9afcac4748a59bfadfd48742dac60760f293457af9a8d8  blackwell-ultra.webp
 ```
-
-## Integration cautions and remaining QA
-
-- `equation` entries are identity cards, not a universal multiplication expression. Station's relation is 252 + 496 = 748; Spark's CPU/GPU/memory cards are not arithmetic factors. Root has been notified.
-- Every lesson intentionally omits `peer`. A stale route from a multi-GPU system must normalize to a valid path.
-- `inside.lenses` keys remain `groups`, `network`, `storage`, per the contract, but labels adapt: page tables for GH200, C2C/memory controller for Spark, C2C/HBM for Station. Do not render fixed “network” or “storage” headings instead of their data labels.
-- Show figure notes in the guided image view as well as the overview/enlargement. GH200's HBM3-era label and Station's architecture-vs-SKU distinction must remain visible regardless of selected lens.
-- The figure highlighting coordinates were measured from inspected full images. Root must verify them in the rendered UI, keyboard selection, zoom/dialog behavior, narrow layouts, and state restoration.
-- The experiments use published decimal GB capacity and illustrative decimal GB allocations consistently. These are arithmetic teaching examples, not actual usable-memory reports.
-- No model specifications were edited. Shared path rates, direction labels and caveats still come from existing models per the agreed contract.
